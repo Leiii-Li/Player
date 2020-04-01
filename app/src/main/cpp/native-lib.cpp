@@ -27,5 +27,5 @@ Java_com_nelson_player_player_PlayerNative_prepare(JNIEnv *env, jclass clazz) {
 extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_nelson_player_player_PlayerNative_getVersion(JNIEnv *env, jclass clazz) {
-    return env->NewStringUTF("1.0");
+    return env->NewStringUTF("FFmpegPLayer Version :1.0");
 }
