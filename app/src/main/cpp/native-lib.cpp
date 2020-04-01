@@ -40,5 +40,5 @@ Java_com_nelson_player_player_PlayerNative_getVersion(JNIEnv *env, jclass clazz)
 
 //    LOGD("%d", ret);
 
-    return env->NewStringUTF("FFmpegPLayer Version :1.2 ");
+    return env->NewStringUTF("FFmpegPLayer Version :1.8");
 }

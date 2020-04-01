@@ -1,8 +1,10 @@
 package com.nelson.player.player;
 
 public class PlayerNative {
+
     static {
         System.loadLibrary("native-lib");
+        System.loadLibrary("avcodec-57");
     }
 
     public static native String getVersion();

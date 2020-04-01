@@ -9,7 +9,7 @@ android {
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AwndroidJUnitRunner"
         externalNativeBuild {
             cmake {
                 cppFlags "-std=c++11"
@@ -30,7 +30,7 @@ android {
         }
     }
     sourceSets {
-        main.jniLibs.srcDirs=['src/main/cpp/libs']
+        main.jniLibs.srcDirs = ['src/main/cpp/libs']
     }
 }
 
