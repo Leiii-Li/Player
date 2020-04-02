@@ -56,7 +56,7 @@ JNIEXPORT jstring JNICALL
 Java_com_nelson_player_player_PlayerNative_getVersion(JNIEnv *env, jclass clazz) {
 
 //    pthread_t threadId;
-//    pthread_create(&threadId, 0, printCodeFormat, env);
+//    pthread_create(&threadId, 0, loadResource, env);
 
     return env->NewStringUTF("FFmpegPLayer Version :1.12");
 }

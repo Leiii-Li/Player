@@ -18,8 +18,9 @@ class Player {
   void prepare();
   char *dataSource;
   AVFormatContext *avFormatContext;
- private:
   PlayerCallBack *callBack;
+ private:
+
 };
 
 

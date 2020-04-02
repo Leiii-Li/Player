@@ -6,6 +6,7 @@
 #include "Player.h"
 #include "cstring"
 #include "android/log.h"
+#include "../constant/Global.h"
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -18,7 +19,11 @@ extern "C" {
 void *_prepare(void *args);
 
 Player::Player(PlayerCallBack *callBack) {
+    avcodec_register_all();
+    av_register_all();
+    avformat_network_init();
     this->callBack = callBack;
+    this->avFormatContext = avformat_alloc_context();
 }
 Player::~Player() {
 
@@ -35,11 +40,8 @@ void Player::prepare() {
 
 void *_prepare(void *args) {
     Player *player = static_cast<Player *>(args);
-    avcodec_register_all();
-    av_register_all();
-    avformat_network_init();
-
     int ret = avformat_open_input(&player->avFormatContext, player->dataSource, NULL, NULL);
+    player->callBack->onSuccess(THREAD_CHILD);
     LOGD("Ret : %d", ret);
     return NULL;
 }
