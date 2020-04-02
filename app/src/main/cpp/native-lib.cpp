@@ -43,7 +43,7 @@ Java_com_nelson_player_player_PlayerNative_setDataSource(JNIEnv *env,
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_nelson_player_player_PlayerNative_start(JNIEnv *env, jclass clazz) {
-    // TODO: implement start()
+    player->start();
 }
 
 extern "C"

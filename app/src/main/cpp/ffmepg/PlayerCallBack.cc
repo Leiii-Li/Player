@@ -42,7 +42,15 @@ void PlayerCallBack::onSuccess(int threadId) {
     }
 }
 void PlayerCallBack::onPrepare(int threadId) {
-
+    if (threadId == THREAD_CHILD) {
+        JNIEnv *env;
+        // 获取当前线程的JNIEnv
+        javaVm->AttachCurrentThread(&env, 0);
+        env->CallVoidMethod(instance, onPrepareMethodId);
+        javaVm->DetachCurrentThread();
+    } else {
+        jniEnv->CallVoidMethod(instance, onPrepareMethodId);
+    }
 }
 void PlayerCallBack::onProgress(int threadId, const char *msg) {
     if (threadId == THREAD_CHILD) {

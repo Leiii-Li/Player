@@ -39,6 +39,7 @@ public class PlayerHelper {
         @Override
         public void onPrepare() {
             Log.i(TAG, "onPrepare: ");
+            PlayerNative.start();
         }
     };
 }

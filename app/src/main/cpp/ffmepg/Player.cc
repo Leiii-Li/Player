@@ -40,6 +40,10 @@ void Player::prepare() {
     pthread_create(prepareThread, NULL, _prepare, this);
 }
 
+void Player::start() {
+
+}
+
 /**
  * 该流程主要参考官方demo
  * @param args
@@ -98,6 +102,7 @@ void *_prepare(void *args) {
             player->callBack->onError(THREAD_CHILD, FFMPEG_NOMEDIA);
             return NULL;
         }
+        player->callBack->onPrepare(THREAD_CHILD);
     }
     LOGD("Ret : %d", ret);
     return NULL;

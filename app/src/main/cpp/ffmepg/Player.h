@@ -24,8 +24,7 @@ class Player {
   PlayerCallBack *callBack;
   AudioChannel *audioChannel;
   VideoChannel *videoChannel;
- private:
-
+  void start();
 };
 
 
