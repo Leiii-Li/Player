@@ -47,7 +47,7 @@ JNIEXPORT jstring JNICALL
 Java_com_nelson_player_player_PlayerNative_getVersion(JNIEnv *env, jclass clazz) {
 
     pthread_t threadId;
-    pthread_create(&threadId, 0, printCodeFormat, env);
+    pthread_create(&threadId, 0, loadResource, env);
 
     return env->NewStringUTF("FFmpegPLayer Version :1.12");
 }
@@ -71,26 +71,19 @@ void *printCodeFormat(void *args) {
     }
     return NULL;
 }
+
 void *loadResource(void *args) {
 
     JNIEnv *env = static_cast<JNIEnv *>(args);
 
     const char *dataSource = "http://ivi.bupt.edu.cn/hls/cctv1hd.m3u8";
 
-    AVFormatContext *avFormatContext;
-
+    AVFormatContext *avFormatContext = avformat_alloc_context();;
+    avcodec_register_all();
     av_register_all();
     avformat_network_init();
 
     int ret = avformat_open_input(&avFormatContext, dataSource, NULL, NULL);
-    jthrowable exc = env->ExceptionOccurred();
-
-    if (exc) {
-        // 打印异常日志
-        env->ExceptionDescribe();
-        // 这行代码才是关键不让应用崩溃的代码，
-        env->ExceptionClear();
-    }
 
     LOGD("Return : %d", ret);
 
