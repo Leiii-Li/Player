@@ -77,7 +77,8 @@ add_library(
         ffmepg/Player.cc
         ffmepg/PlayerCallBack.cc
         ffmepg/AudioChannle.cc
-        ffmepg/VideoChannel.cc)
+        ffmepg/VideoChannel.cc
+        constant/Global.h)
 
 find_library(
         log-lib
