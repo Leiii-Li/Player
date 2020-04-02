@@ -1,6 +1,6 @@
 package com.nelson.player.player;
 
-public class PlayerNative {
+class PlayerNative {
 
     static {
         System.loadLibrary("native-lib");
@@ -19,7 +19,7 @@ public class PlayerNative {
 
     public static native void init(FFmpegCallBack callBack);
 
-    public static native void setDataSource();
+    public static native void setDataSource(String dataSource);
 
     public static native void start();
 

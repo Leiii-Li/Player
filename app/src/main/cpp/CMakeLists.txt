@@ -73,7 +73,11 @@ add_library(
 
         SHARED
 
-        native-lib.cpp)
+        native-lib.cpp
+        ffmepg/Player.cc
+        ffmepg/PlayerCallBack.cc
+        ffmepg/AudioChannle.cc
+        ffmepg/VideoChannel.cc)
 
 find_library(
         log-lib

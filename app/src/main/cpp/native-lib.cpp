@@ -2,6 +2,10 @@
 #include <string>
 #include <pthread.h>
 #include <android/log.h>
+
+#include "ffmepg/Player.h"
+#include "ffmepg/PlayerCallBack.h"
+
 extern "C" {
 #include <libavformat/avformat.h>
 }
@@ -13,7 +17,7 @@ void *loadResource(void *args);
 void *printCodeFormat(void *args);
 
 JavaVM *javaVm;
-
+Player *player;
 jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     javaVm = vm;
     return JNI_VERSION_1_6;
@@ -22,13 +26,18 @@ jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_nelson_player_player_PlayerNative_init(JNIEnv *env, jclass clazz, jobject call_back) {
-    // TODO: implement init()
+    PlayerCallBack *callBack = new PlayerCallBack(javaVm, env, call_back);
+    player = new Player(callBack);
 }
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_nelson_player_player_PlayerNative_setDataSource(JNIEnv *env, jclass clazz) {
-    // TODO: implement setDataSource()
+Java_com_nelson_player_player_PlayerNative_setDataSource(JNIEnv *env,
+                                                         jclass clazz,
+                                                         jstring data_source) {
+    const char *dataSource = env->GetStringUTFChars(data_source, 0);
+    player->setDataSource(dataSource);
+    player->prepare();
 }
 
 extern "C"
@@ -46,8 +55,8 @@ extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_nelson_player_player_PlayerNative_getVersion(JNIEnv *env, jclass clazz) {
 
-    pthread_t threadId;
-    pthread_create(&threadId, 0, loadResource, env);
+//    pthread_t threadId;
+//    pthread_create(&threadId, 0, printCodeFormat, env);
 
     return env->NewStringUTF("FFmpegPLayer Version :1.12");
 }
