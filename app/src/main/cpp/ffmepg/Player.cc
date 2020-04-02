@@ -41,7 +41,11 @@ void Player::prepare() {
 void *_prepare(void *args) {
     Player *player = static_cast<Player *>(args);
     int ret = avformat_open_input(&player->avFormatContext, player->dataSource, NULL, NULL);
-    player->callBack->onSuccess(THREAD_CHILD);
+    if (ret != 0) {
+        player->callBack->onError(THREAD_CHILD, FFMPEG_CAN_NOT_OPEN_URL);
+        return NULL;
+    }
+
     LOGD("Ret : %d", ret);
     return NULL;
 }

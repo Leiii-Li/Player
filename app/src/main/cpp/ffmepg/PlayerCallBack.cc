@@ -20,8 +20,14 @@ PlayerCallBack::~PlayerCallBack() {
 }
 
 void PlayerCallBack::onError(int threadId, int errorCode) {
-    if (threadId) {
-
+    if (threadId == THREAD_CHILD) {
+        JNIEnv *env;
+        // 获取当前线程的JNIEnv
+        javaVm->AttachCurrentThread(&env, 0);
+        env->CallVoidMethod(instance, onErrorMethodId, errorCode);
+        javaVm->DetachCurrentThread();
+    } else {
+        jniEnv->CallVoidMethod(instance, onErrorMethodId, errorCode);
     }
 }
 void PlayerCallBack::onSuccess(int threadId) {
@@ -43,9 +49,15 @@ void PlayerCallBack::onProgress(int threadId, const char *msg) {
         JNIEnv *env;
         // 获取当前线程的JNIEnv
         javaVm->AttachCurrentThread(&env, 0);
-        env->CallVoidMethod(instance, onProgressMethodId, msg);
+        jstring jMsg = env->NewStringUTF(msg);
+        env->CallVoidMethod(instance, onProgressMethodId, jMsg);
+        env->ReleaseStringUTFChars(jMsg, msg);
+        env->DeleteGlobalRef(jMsg);
         javaVm->DetachCurrentThread();
     } else {
-        jniEnv->CallVoidMethod(instance, onProgressMethodId, msg);
+        jstring jMsg = jniEnv->NewStringUTF(msg);
+        jniEnv->CallVoidMethod(instance, onProgressMethodId, jMsg);
+        jniEnv->ReleaseStringUTFChars(jMsg, msg);
+        jniEnv->DeleteGlobalRef(jMsg);
     }
 }
