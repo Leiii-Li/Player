@@ -7,6 +7,8 @@
 #include "cstring"
 #include "android/log.h"
 #include "../constant/Global.h"
+#include "VideoChannel.h"
+#include "AudioChannel.h"
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -38,6 +40,11 @@ void Player::prepare() {
     pthread_create(prepareThread, NULL, _prepare, this);
 }
 
+/**
+ * 该流程主要参考官方demo
+ * @param args
+ * @return
+ */
 void *_prepare(void *args) {
     Player *player = static_cast<Player *>(args);
     int ret = avformat_open_input(&player->avFormatContext, player->dataSource, NULL, NULL);
@@ -46,6 +53,52 @@ void *_prepare(void *args) {
         return NULL;
     }
 
+    // 打开链接成功，AVFormatContext中通常会有两个两个流 ：音频流与视频流
+    for (int i = 0; i < player->avFormatContext->nb_streams; i++) {
+        // 获取流对象
+        AVStream *stream = player->avFormatContext->streams[i];
+        // 获取其编码信息
+        AVCodecParameters *parameters = stream->codecpar;
+
+        //查找解码器
+        AVCodec *avCodec = avcodec_find_decoder(parameters->codec_id);
+        if (avCodec == NULL) {
+            player->callBack->onError(THREAD_CHILD, FFMPEG_FIND_DECODER_FAIL);
+        }
+
+        // 获取解码器
+        AVCodecContext *codecContext = avcodec_alloc_context3(avCodec);
+        if (codecContext == NULL) {
+            player->callBack->onError(THREAD_CHILD, FFMPEG_ALLOC_CODEC_CONTEXT_FAIL);
+            return NULL;
+        }
+
+        //设置解码器上下文的参数
+        int ret = avcodec_parameters_to_context(codecContext, parameters);
+        if (ret < 0) {
+            player->callBack->onError(THREAD_CHILD, FFMPEG_CODEC_CONTEXT_PARAMETERS_FAIL);
+            return NULL;
+        }
+
+        // 打开解码器
+        ret = avcodec_open2(codecContext, avCodec, 0);
+        if (ret != 0) {
+            player->callBack->onError(THREAD_CHILD, FFMPEG_OPEN_DECODER_FAIL);
+            return NULL;
+        }
+
+        if (parameters->codec_type == AVMEDIA_TYPE_VIDEO) {
+            // 视频流
+            player->videoChannel = new VideoChannel();
+        } else if (parameters->codec_type == AVMEDIA_TYPE_AUDIO) {
+            // 音频流
+            player->audioChannel = new AudioChannel();
+        }
+        if (!player->videoChannel && !player->audioChannel) {
+            player->callBack->onError(THREAD_CHILD, FFMPEG_NOMEDIA);
+            return NULL;
+        }
+    }
     LOGD("Ret : %d", ret);
     return NULL;
 }

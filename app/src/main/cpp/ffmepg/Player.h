@@ -10,6 +10,9 @@ extern "C" {
 }
 
 #include "PlayerCallBack.h"
+#include "AudioChannel.h"
+#include "VideoChannel.h"
+
 class Player {
  public:
   Player(PlayerCallBack *callBack);
@@ -19,6 +22,8 @@ class Player {
   char *dataSource;
   AVFormatContext *avFormatContext;
   PlayerCallBack *callBack;
+  AudioChannel *audioChannel;
+  VideoChannel *videoChannel;
  private:
 
 };

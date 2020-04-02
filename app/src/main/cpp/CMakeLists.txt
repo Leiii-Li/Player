@@ -76,7 +76,7 @@ add_library(
         native-lib.cpp
         ffmepg/Player.cc
         ffmepg/PlayerCallBack.cc
-        ffmepg/AudioChannle.cc
+        ffmepg/AudioChannel.cc
         ffmepg/VideoChannel.cc
         constant/Global.h)
 
