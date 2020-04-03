@@ -15,7 +15,7 @@ using namespace std;
 
 template<typename T>
 class SafeQueue {
-  typedef void (*ReleaseHandle)(T &);
+  typedef void (*ReleaseCallBack)(T *);
 
   typedef void (*SyncHandle)(queue<T> &);
 
@@ -29,7 +29,10 @@ class SafeQueue {
       pthread_cond_destroy(&cond);
       pthread_mutex_destroy(&mutex);
   }
-
+  /**
+   * 入队列
+   * @param new_value
+   */
   void enQueue(const T new_value) {
       pthread_mutex_lock(&mutex);
       if (work) {
@@ -40,7 +43,11 @@ class SafeQueue {
       pthread_mutex_unlock(&mutex);
   }
 
-
+  /**
+   * 出队列
+   * @param value
+   * @return
+   */
   int deQueue(T &value) {
       int ret = 0;
       pthread_mutex_lock(&mutex);
@@ -77,7 +84,7 @@ class SafeQueue {
       int size = q.size();
       for (int i = 0; i < size; ++i) {
           T value = q.front();
-          releaseHandle(value);
+          releaseCallBack(&value);
           q.pop();
       }
       pthread_mutex_unlock(&mutex);
@@ -89,8 +96,8 @@ class SafeQueue {
       pthread_mutex_unlock(&mutex);
   }
 
-  void setReleaseHandle(ReleaseHandle r) {
-      releaseHandle = r;
+  void setReleaseCallBack(ReleaseCallBack r) {
+      releaseCallBack = r;
   }
 
   void setSyncHandle(SyncHandle s) {
@@ -98,13 +105,13 @@ class SafeQueue {
   }
 
  private:
-
   pthread_cond_t cond;
   pthread_mutex_t mutex;
 
   queue<T> q;
+  // 为0视为停止处理，为1才处理数据包
   int work;
-  ReleaseHandle releaseHandle;
+  ReleaseCallBack releaseCallBack;
   SyncHandle syncHandle;
 
 };

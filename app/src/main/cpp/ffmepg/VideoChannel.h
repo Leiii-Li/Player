@@ -7,11 +7,15 @@
 
 
 #include "BaseChannel.h"
+#include "pthread.h"
 
 class VideoChannel: public BaseChannel {
  public:
-  VideoChannel(int streamId);
-
+  VideoChannel(int streamId, AVCodecContext *pContext);
+  void play();
+  void decode();
+ private:
+  pthread_t decodeThreadId;
 };
 
 

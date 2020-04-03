@@ -63,18 +63,18 @@ void *_play(void *args) {
 void Player::_start() {
     LOGD("Player Start");
     // 读取数据包
+    videoChannel->packets.setWork(1);
     while (isPlaying) {
-        // 读取一个数据包
+        // 在堆内存中申请一个内存空间
         AVPacket *avPacket = av_packet_alloc();
         int ret = av_read_frame(avFormatContext, avPacket);
         if (ret == 0) {
             //读取成功
-            if (audioChannel && avPacket->stream_index == audioChannel->streamId) {
-                // 音频包
-
-            } else if (videoChannel && avPacket->stream_index == videoChannel->streamId) {
+            if (videoChannel && avPacket->stream_index == videoChannel->streamId) {
                 // 视频包
-
+                videoChannel->packets.enQueue(avPacket);
+            } else if (audioChannel && avPacket->stream_index == audioChannel->streamId) {
+                // 音频包
             }
         } else if (ret == AVERROR_EOF) {
             // 读取完成
@@ -134,10 +134,10 @@ void *_prepare(void *args) {
 
         if (parameters->codec_type == AVMEDIA_TYPE_VIDEO) {
             // 视频流
-            player->videoChannel = new VideoChannel(i);
+            player->videoChannel = new VideoChannel(i, codecContext);
         } else if (parameters->codec_type == AVMEDIA_TYPE_AUDIO) {
             // 音频流
-            player->audioChannel = new AudioChannel(i);
+            player->audioChannel = new AudioChannel(i, codecContext);
         }
         if (!player->videoChannel && !player->audioChannel) {
             player->callBack->onError(THREAD_CHILD, FFMPEG_NOMEDIA);

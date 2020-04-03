@@ -9,7 +9,8 @@
 
 class AudioChannel: public BaseChannel {
  public:
-  AudioChannel(int streamId);
+  AudioChannel(int streamId, AVCodecContext *pContext);
+  void play();
 };
 
 
