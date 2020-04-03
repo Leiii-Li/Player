@@ -6,7 +6,11 @@
 #define PLAYER_VIDEOCHANNEL_H
 
 
-class VideoChannel {
+#include "BaseChannel.h"
+
+class VideoChannel: public BaseChannel {
+ public:
+  VideoChannel(int streamId);
 
 };
 

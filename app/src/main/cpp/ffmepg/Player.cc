@@ -19,6 +19,7 @@ extern "C" {
 #define LOGD(...) ((void)__android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__))
 
 void *_prepare(void *args);
+void *_play(void *args);
 
 Player::Player(PlayerCallBack *callBack) {
     avcodec_register_all();
@@ -32,7 +33,7 @@ Player::~Player() {
 }
 void Player::setDataSource(const char *dataSource) {
     //防止dataSource在其他地方被释放
-    this->dataSource = new char[strlen(dataSource)];
+    this->dataSource = new char[strlen(dataSource) + 1];
     strcpy(this->dataSource, dataSource);
 }
 void Player::prepare() {
@@ -41,8 +42,48 @@ void Player::prepare() {
 }
 
 void Player::start() {
-
+    LOGD("Start");
+    if (isPlaying) {
+        return;
+    }
+    isPlaying = true;
+    pthread_t playThreadId;
+    pthread_create(&playThreadId, 0, _play, this);
 }
+
+void *_play(void *args) {
+    Player *player = static_cast<Player *>(args);
+    player->_start();
+    return NULL;
+}
+
+/**
+ * 读取数据包
+ */
+void Player::_start() {
+    LOGD("Player Start");
+    // 读取数据包
+    while (isPlaying) {
+        // 读取一个数据包
+        AVPacket *avPacket = av_packet_alloc();
+        int ret = av_read_frame(avFormatContext, avPacket);
+        if (ret == 0) {
+            //读取成功
+            if (audioChannel && avPacket->stream_index == audioChannel->streamId) {
+                // 音频包
+
+            } else if (videoChannel && avPacket->stream_index == videoChannel->streamId) {
+                // 视频包
+
+            }
+        } else if (ret == AVERROR_EOF) {
+            // 读取完成
+        } else {
+
+        }
+    }
+}
+
 
 /**
  * 该流程主要参考官方demo
@@ -93,10 +134,10 @@ void *_prepare(void *args) {
 
         if (parameters->codec_type == AVMEDIA_TYPE_VIDEO) {
             // 视频流
-            player->videoChannel = new VideoChannel();
+            player->videoChannel = new VideoChannel(i);
         } else if (parameters->codec_type == AVMEDIA_TYPE_AUDIO) {
             // 音频流
-            player->audioChannel = new AudioChannel();
+            player->audioChannel = new AudioChannel(i);
         }
         if (!player->videoChannel && !player->audioChannel) {
             player->callBack->onError(THREAD_CHILD, FFMPEG_NOMEDIA);

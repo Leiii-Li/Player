@@ -3,3 +3,6 @@
 //
 
 #include "VideoChannel.h"
+VideoChannel::VideoChannel(int streamId) : BaseChannel(streamId) {
+
+}

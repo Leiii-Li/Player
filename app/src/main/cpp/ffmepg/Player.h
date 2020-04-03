@@ -22,9 +22,11 @@ class Player {
   char *dataSource;
   AVFormatContext *avFormatContext;
   PlayerCallBack *callBack;
-  AudioChannel *audioChannel;
-  VideoChannel *videoChannel;
+  AudioChannel *audioChannel = 0;
+  VideoChannel *videoChannel = 0;
   void start();
+  bool isPlaying = false;
+  void _start();
 };
 
 
