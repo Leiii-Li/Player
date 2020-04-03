@@ -3,9 +3,19 @@
 //
 
 #include "AudioChannel.h"
-AudioChannel::AudioChannel(int streamId, AVCodecContext *pContext) : BaseChannel(streamId,pContext) {
+AudioChannel::AudioChannel(int streamId, AVCodecContext *pContext) : BaseChannel(streamId,
+                                                                                 pContext) {
 
 }
-void AudioChannel::play() {
+void AudioChannel::start() {
+
+}
+void AudioChannel::readTask() {
+
+}
+void AudioChannel::decodeTask() {
+
+}
+void AudioChannel::renderTask() {
 
 }

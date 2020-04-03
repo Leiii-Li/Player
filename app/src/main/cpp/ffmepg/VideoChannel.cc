@@ -8,6 +8,17 @@ VideoChannel::VideoChannel(int streamId, AVCodecContext *pContext) : BaseChannel
 
 }
 
+void VideoChannel::readTask() {
+
+}
+
+void VideoChannel::decodeTask() {
+
+}
+void VideoChannel::renderTask() {
+
+}
+
 void *decode_task(void *args) {
     VideoChannel *videoChannel = static_cast<VideoChannel *>(args);
     videoChannel->decode();

@@ -19,14 +19,16 @@ class Player {
   ~Player();
   void setDataSource(const char *dataSource);
   void prepare();
+  void _prepare();
+  void start();
+  void _start();
+ private:
   char *dataSource;
   AVFormatContext *avFormatContext;
   PlayerCallBack *callBack;
   AudioChannel *audioChannel = 0;
   VideoChannel *videoChannel = 0;
-  void start();
   bool isPlaying = false;
-  void _start();
 };
 
 

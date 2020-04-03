@@ -34,7 +34,16 @@ class BaseChannel {
   int streamId;
   SafeQueue<AVPacket *> packets;
   bool isPlaying;
-  virtual void play() = 0;
   AVCodecContext *avCodecContext;
+
+  //进行一些准备工作
+  virtual void start() = 0;
+  // 读流线程
+  virtual void readTask() = 0;
+  // 解码线程
+  virtual void decodeTask() = 0;
+  //渲染线程
+  virtual void renderTask() = 0;
+
 };
 #endif //PLAYER_BASECHANNEL_H
