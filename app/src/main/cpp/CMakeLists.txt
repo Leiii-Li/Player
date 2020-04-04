@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.4.1)
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-set(ARM_DIR E:/AndroidWorkSpace/Player/app/src/main/cpp/libs)
+set(ARM_DIR ${CMAKE_SOURCE_DIR}/libs)
 
 add_library(avcodec-57
         SHARED
