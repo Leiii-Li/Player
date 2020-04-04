@@ -40,9 +40,10 @@ void Player::setDataSource(const char *dataSource) {
 
 //进行编解码准备工作
 void Player::prepare() {
-    pthread_t *prepareThread;
+    LOGD("Prepare");
+    pthread_t prepareThread;
     //创建线程，进行探测流工作
-    pthread_create(prepareThread, NULL, prepare_thread, this);
+    pthread_create(&prepareThread, 0, prepare_thread, this);
 }
 
 void Player::start() {
@@ -155,6 +156,6 @@ void Player::_prepare() {
             callBack->onError(THREAD_CHILD, FFMPEG_NOMEDIA);
             return;
         }
-        callBack->onPrepare(THREAD_CHILD);
     }
+    callBack->onPrepare(THREAD_CHILD);
 }
