@@ -32,18 +32,19 @@ class BaseChannel {
   };
 
   int streamId;
+  bool channelIsWorking = false;
+
   SafeQueue<AVPacket *> packets;
-  bool isPlaying;
   AVCodecContext *avCodecContext;
 
   //进行一些准备工作
   virtual void start() = 0;
-  // 读流线程
-  virtual void readTask() = 0;
+  virtual void stop() = 0;
+
   // 解码线程
-  virtual void decodeTask() = 0;
+  virtual void runDecodeTask() = 0;
   //渲染线程
-  virtual void renderTask() = 0;
+  virtual void runRenderTask() = 0;
 
 };
 #endif //PLAYER_BASECHANNEL_H

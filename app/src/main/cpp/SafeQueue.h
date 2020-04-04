@@ -33,7 +33,7 @@ class SafeQueue {
    * 入队列
    * @param new_value
    */
-  void enQueue(const T new_value) {
+  void push(const T new_value) {
       pthread_mutex_lock(&mutex);
       if (work) {
           q.push(new_value);
@@ -48,7 +48,7 @@ class SafeQueue {
    * @param value
    * @return
    */
-  int deQueue(T &value) {
+  int pop(T &value) {
       int ret = 0;
       pthread_mutex_lock(&mutex);
       //在多核处理器下 由于竞争可能虚假唤醒 包括jdk也说明了
@@ -64,7 +64,7 @@ class SafeQueue {
       return ret;
   }
 
-  void setWork(int work) {
+  void setWork(bool work) {
       pthread_mutex_lock(&mutex);
       this->work = work;
       pthread_cond_signal(&cond);
@@ -110,7 +110,7 @@ class SafeQueue {
 
   queue<T> q;
   // 为0视为停止处理，为1才处理数据包
-  int work;
+  bool work;
   ReleaseCallBack releaseCallBack;
   SyncHandle syncHandle;
 

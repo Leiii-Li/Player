@@ -19,7 +19,7 @@ extern "C" {
 #define LOGD(...) ((void)__android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__))
 
 void *prepare_thread(void *args);
-void *pla_thread(void *args);
+void *reader_thread(void *args);
 
 Player::Player(PlayerCallBack *callBack) {
     avcodec_register_all();
@@ -52,10 +52,10 @@ void Player::start() {
     }
     isPlaying = true;
     pthread_t playThreadId;
-    pthread_create(&playThreadId, 0, pla_thread, this);
+    pthread_create(&playThreadId, 0, reader_thread, this);
 }
 
-void *pla_thread(void *args) {
+void *reader_thread(void *args) {
     Player *player = static_cast<Player *>(args);
     player->_start();
     return NULL;
@@ -67,8 +67,27 @@ void *pla_thread(void *args) {
 void Player::_start() {
     LOGD("Player Start");
     // 读取数据包
-    videoChannel->packets.setWork(1);
-    videoChannel->
+    videoChannel->start();
+    audioChannel->start();
+    while (isPlaying) {
+        // 在堆内存中申请一个内存空间
+        AVPacket *avPacket = av_packet_alloc();
+        int ret = av_read_frame(avFormatContext, avPacket);
+        if (ret == 0) {
+            //读取成功
+            if (videoChannel && avPacket->stream_index == videoChannel->streamId) {
+                // 视频包
+                videoChannel->packets.push(avPacket);
+            } else if (audioChannel && avPacket->stream_index == audioChannel->streamId) {
+                // 音频包
+                audioChannel->packets.push(avPacket);
+            }
+        } else if (ret == AVERROR_EOF) {
+            // 读取完成
+        } else {
+
+        }
+    }
 }
 
 

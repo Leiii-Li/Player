@@ -14,13 +14,13 @@ class VideoChannel: public BaseChannel {
   VideoChannel(int streamId, AVCodecContext *pContext);
 
   //进行一些准备工作
-  void init();
-  // 读流线程
-  void readTask();
+  void start();
+  void stop();
+
   // 解码线程
-  void decodeTask();
+  void runDecodeTask();
   //渲染线程
-  void renderTask();
+  void runRenderTask();
  private:
   pthread_t decodeThreadId;
 };

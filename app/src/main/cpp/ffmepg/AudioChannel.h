@@ -13,12 +13,13 @@ class AudioChannel: public BaseChannel {
 
   //进行一些准备工作
   void start();
-  // 读流线程
-  void readTask();
+  void stop();
+
+
   // 解码线程
-  void decodeTask();
+  void runDecodeTask();
   //渲染线程
-  void renderTask();
+  void runRenderTask();
 };
 
 

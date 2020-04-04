@@ -2,34 +2,30 @@
 // Created by Administrator on 2020\4\2 0002.
 //
 
+void *decode_task(void *args);
+
 #include "VideoChannel.h"
 VideoChannel::VideoChannel(int streamId, AVCodecContext *pContext) : BaseChannel(streamId,
                                                                                  pContext) {
 
 }
 
-void VideoChannel::readTask() {
-
+void VideoChannel::start() {
+    channelIsWorking = true;
+    packets.setWork(true);
+    pthread_create(&decodeThreadId, 0, decode_task, 0);
 }
 
-void VideoChannel::decodeTask() {
-
-}
-void VideoChannel::renderTask() {
-
+void VideoChannel::stop() {
+    channelIsWorking = true;
+    packets.setWork(false);
 }
 
-void *decode_task(void *args) {
-    VideoChannel *videoChannel = static_cast<VideoChannel *>(args);
-    videoChannel->decode();
-    return NULL;
-}
-
-void VideoChannel::decode() {
+void VideoChannel::runDecodeTask() {
     AVPacket *packet = 0;
-    while (isPlaying) {
-        int ret = packets.deQueue(packet);
-        if (!isPlaying) {
+    while (channelIsWorking) {
+        int ret = packets.pop(packet);
+        if (!channelIsWorking) {
             break;
         }
         if (!ret) {
@@ -37,7 +33,7 @@ void VideoChannel::decode() {
         }
         // 将avPacket送至解码器进行解码
         ret = avcodec_send_packet(avCodecContext, packet);
-        // 重试
+        // 解码失败
         if (ret != 0) {
             break;
         }
@@ -45,7 +41,6 @@ void VideoChannel::decode() {
         AVFrame *frame = av_frame_alloc();
         // 从解码器中读取解码后的数据包
         ret = avcodec_receive_frame(avCodecContext, frame);
-
         if (ret == AVERROR(EAGAIN)) {
             continue;
         } else if (ret != 0) {
@@ -55,8 +50,12 @@ void VideoChannel::decode() {
     releaseAvPacket(&packet);
 }
 
-void VideoChannel::play() {
-    // 解码
-    isPlaying = 1;
-    pthread_create(&decodeThreadId, 0, decode_task, this);
+void VideoChannel::runRenderTask() {
+
+}
+
+void *decode_task(void *args) {
+    VideoChannel *videoChannel = static_cast<VideoChannel *>(args);
+    videoChannel->runDecodeTask();
+    return NULL;
 }

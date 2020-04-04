@@ -8,14 +8,18 @@ AudioChannel::AudioChannel(int streamId, AVCodecContext *pContext) : BaseChannel
 
 }
 void AudioChannel::start() {
+    channelIsWorking = true;
+    packets.setWork(true);
+}
+
+void AudioChannel::stop() {
+    channelIsWorking = false;
+    packets.setWork(false);
+}
+
+void AudioChannel::runDecodeTask() {
 
 }
-void AudioChannel::readTask() {
-
-}
-void AudioChannel::decodeTask() {
-
-}
-void AudioChannel::renderTask() {
+void AudioChannel::runRenderTask() {
 
 }
