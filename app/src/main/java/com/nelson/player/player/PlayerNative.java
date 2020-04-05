@@ -1,5 +1,7 @@
 package com.nelson.player.player;
 
+import android.view.Surface;
+
 class PlayerNative {
 
     static {
@@ -24,4 +26,6 @@ class PlayerNative {
     public static native void start();
 
     public static native void prepare();
+
+    public static native void setSurface(Surface surface, int width, int height);
 }

@@ -1,14 +1,19 @@
 package com.nelson.player.player;
 
 import android.util.Log;
+import android.view.SurfaceHolder;
+import android.view.SurfaceHolder.Callback;
+import android.view.SurfaceView;
 
-public class PlayerHelper {
+public class PlayerHelper implements Callback {
 
     private static final String TAG = PlayerHelper.class.getSimpleName();
     private String mDataSource;
+    private SurfaceView mSurfaceView;
 
-    public PlayerHelper() {
-
+    public PlayerHelper(SurfaceView surfaceView) {
+        mSurfaceView = surfaceView;
+        mSurfaceView.getHolder().addCallback(this);
     }
 
     public void setDataSource(String dataSource) {
@@ -42,4 +47,19 @@ public class PlayerHelper {
             PlayerNative.start();
         }
     };
+
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        PlayerNative.setSurface(holder.getSurface(),width,height);
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+
+    }
 }

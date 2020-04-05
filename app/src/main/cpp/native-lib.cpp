@@ -5,8 +5,11 @@
 
 #include "ffmepg/Player.h"
 #include "ffmepg/PlayerCallBack.h"
+#include <android/native_window_jni.h>
+#include "../utils/RenderCallBack.h"
 
 extern "C" {
+#include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 }
 
@@ -18,9 +21,18 @@ void *printCodeFormat(void *args);
 
 JavaVM *javaVm;
 Player *player;
+ANativeWindow *window;
+
 jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     javaVm = vm;
     return JNI_VERSION_1_6;
+}
+
+void render(uint8_t *data, int lineSize, int width, int height) {
+    if (!window) {
+        return;
+    }
+
 }
 
 extern "C"
@@ -97,4 +109,18 @@ void *loadResource(void *args) {
     LOGD("Return : %d", ret);
 
     return NULL;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nelson_player_player_PlayerNative_setSurface(JNIEnv *env,
+                                                      jclass clazz,
+                                                      jobject surface,
+                                                      jint width,
+                                                      jint height) {
+    if (window) {
+        //释放之前的window
+        ANativeWindow_release(window);
+    }
+    window = ANativeWindow_fromSurface(env, surface);
 }
