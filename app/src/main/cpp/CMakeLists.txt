@@ -80,6 +80,8 @@ add_library(
         ffmepg/VideoChannel.cc
         ffmepg/BaseChannel.h
         constant/Global.h
+        utils/ReleaseUtils.h
+        utils/RenderCallBack.h
         SafeQueue.h)
 
 find_library(
@@ -98,5 +100,7 @@ target_link_libraries(
         postproc-54
         swresample-2
         swscale-4
+
+        android
 
         ${log-lib})
