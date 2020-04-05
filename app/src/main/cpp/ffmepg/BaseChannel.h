@@ -8,28 +8,19 @@ extern "C" {
 #include <libavcodec/avcodec.h>
 }
 #include "../SafeQueue.h"
+#include "../utils/ReleaseUtils.h"
 
 class BaseChannel {
  public:
   BaseChannel(int streamId, AVCodecContext *codecContext) {
       this->streamId = streamId;
       this->avCodecContext = codecContext;
+      packets.setReleaseCallBack(ReleaseUtils::releaseAvPacket);
   }
   // 如果该方法不声明为虚函数，那么子类会调用父类的析构函数
   virtual ~BaseChannel() {
-      packets.setReleaseCallBack(BaseChannel::releaseAvPacket);
       packets.clear();
   }
-  /**
-   * 释放AVPacket
-   * @param avPacket
-   */
-  static void releaseAvPacket(AVPacket **avPacket) {
-      if (avPacket) {
-          av_packet_free(avPacket);
-          avPacket = 0;
-      }
-  };
 
   int streamId;
   bool channelIsWorking = false;

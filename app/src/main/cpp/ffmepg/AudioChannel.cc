@@ -15,6 +15,7 @@ void AudioChannel::start() {
 void AudioChannel::stop() {
     channelIsWorking = false;
     packets.setWork(false);
+    packets.clear();
 }
 
 void AudioChannel::runDecodeTask() {

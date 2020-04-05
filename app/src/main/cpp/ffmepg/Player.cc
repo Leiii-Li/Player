@@ -9,6 +9,7 @@
 #include "../constant/Global.h"
 #include "VideoChannel.h"
 #include "AudioChannel.h"
+#include "../utils/RenderCallBack.h"
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -27,6 +28,9 @@ Player::Player(PlayerCallBack *callBack) {
     avformat_network_init();
     this->callBack = callBack;
     this->avFormatContext = avformat_alloc_context();
+}
+void Player::setRenderFrameCallBack(RenderFrameCallBack *renderFrameCallBack) {
+    this->renderFrameCallBack = renderFrameCallBack;
 }
 Player::~Player() {
 
