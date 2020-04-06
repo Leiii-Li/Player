@@ -1,10 +1,12 @@
 package com.nelson.player;
 
+import android.os.Environment;
 import android.view.SurfaceView;
 import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import com.nelson.player.player.PlayerHelper;
+import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -18,7 +20,10 @@ public class MainActivity extends AppCompatActivity {
         mSurfaceView = findViewById(R.id.surface_view);
         mPlayerHelper = new PlayerHelper(mSurfaceView);
         mPlayerHelper.init();
-        mPlayerHelper.setDataSource("http://ivi.bupt.edu.cn/hls/cctv1hd.m3u8");
+        File root = Environment.getExternalStorageDirectory();
+        File videoFile  = new File(root,"foye2.mp4");
+        mPlayerHelper.setDataSource(videoFile.getAbsolutePath());
+
     }
 
 }

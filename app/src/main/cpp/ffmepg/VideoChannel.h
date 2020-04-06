@@ -10,11 +10,13 @@ extern "C" {
 }
 #include "BaseChannel.h"
 #include "pthread.h"
+#include "../utils/RenderCallBack.h"
+
 
 class VideoChannel: public BaseChannel {
-  typedef void (*RenderFrameCallBack)(uint8_t *, int, int, int);
+
  public:
-  VideoChannel(int streamId, AVCodecContext *pContext);
+  VideoChannel(int streamId, AVCodecContext *pContext, RenderFrameCallBack callBack);
   ~VideoChannel();
   //进行一些准备工作
   void start();
@@ -24,14 +26,12 @@ class VideoChannel: public BaseChannel {
   void runDecodeTask();
   //渲染线程
   void runRenderTask();
-
-  void setRenderFrame(RenderFrameCallBack *callBack);
  private:
   pthread_t decodeThreadId;
   pthread_t renderThreadId;
   SafeQueue<AVFrame *> frameQueue;
   SwsContext *swsContext;
-  RenderFrameCallBack *renderFrameCallBack;
+  RenderFrameCallBack renderFrameCallBack;
 };
 
 

@@ -8,6 +8,8 @@ extern "C" {
 #include <libavutil/imgutils.h>
 }
 #include "../utils/ReleaseUtils.h"
+#include "../utils/RenderCallBack.h"
+
 #define LOG_TAG "[nelson]"
 #define LOGD(...) ((void)__android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__))
 
@@ -15,20 +17,24 @@ void *decode_task(void *args);
 void *render_task(void *args);
 
 #include "VideoChannel.h"
-VideoChannel::VideoChannel(int streamId, AVCodecContext *pContext) : BaseChannel(streamId,
-                                                                                 pContext) {
+VideoChannel::VideoChannel(int streamId, AVCodecContext *pContext, RenderFrameCallBack callBack)
+        : BaseChannel(streamId,
+                      pContext) {
     frameQueue.setReleaseCallBack(ReleaseUtils::releaseAvFrame);
 
-    // 获取图片转换器转换器
+//    // 获取图片转换器转换器
     swsContext = sws_getContext(pContext->width,
                                 pContext->height,
-                                pContext->pix_fmt,
+                                AV_PIX_FMT_RGBA,
                                 pContext->width,
                                 pContext->height,
                                 AV_PIX_FMT_RGBA,
                                 SWS_BILINEAR,
                                 0,
-                                0, 0);
+                                0,
+                                0);
+    //设置回调
+    renderFrameCallBack = callBack;
 }
 
 VideoChannel::~VideoChannel() {
@@ -44,7 +50,7 @@ void VideoChannel::start() {
     packets.setWork(true);
     frameQueue.setWork(true);
     pthread_create(&decodeThreadId, 0, decode_task, this);
-//    pthread_create(&renderThreadId, 0, render_task, this);
+    pthread_create(&renderThreadId, 0, render_task, this);
 }
 
 void VideoChannel::stop() {
@@ -70,6 +76,7 @@ void VideoChannel::runDecodeTask() {
         ReleaseUtils::releaseAvPacket(&packet);
         // 解码失败
         if (ret != 0) {
+            LOGD("Send Packet Error");
             break;
         }
         // 代表了某一帧
@@ -83,18 +90,16 @@ void VideoChannel::runDecodeTask() {
         }
         frameQueue.push(frame);
     }
-    ReleaseUtils::releaseAvPacket(&packet);
+    LOGD("Decode Thread Finish");
 }
 
 void VideoChannel::runRenderTask() {
-    AVFrame *frame = 0;
 
-    //指针数组
-    uint8_t *dstData[4];
-    int dstStride[4];
-    av_image_alloc(dstData, dstStride, avCodecContext->width,
-                   avCodecContext->height,
-                   avCodecContext->pix_fmt, AV_PIX_FMT_RGBA);
+    uint8_t *dst_data[4];
+    int dst_lineSize[4];
+    av_image_alloc(dst_data, dst_lineSize,
+                   avCodecContext->width, avCodecContext->height, AV_PIX_FMT_RGBA, 1);
+    AVFrame *frame = 0;
     while (channelIsWorking) {
         int ret = frameQueue.pop(frame);
         if (!channelIsWorking) {
@@ -106,19 +111,21 @@ void VideoChannel::runRenderTask() {
                       frame->linesize,
                       0,
                       avCodecContext->height,
-                      dstData,
-                      dstStride);
+                      dst_data,
+                      dst_lineSize);
         }
         if (renderFrameCallBack) {
-
+            renderFrameCallBack(dst_data[0],
+                                dst_lineSize[0],
+                                avCodecContext->width,
+                                avCodecContext->height);
         }
+        ReleaseUtils::releaseAvFrame(&frame);
     }
-    av_free(dstData[0]);
+    av_freep(&dst_data[0]);
+    channelIsWorking = false;
     ReleaseUtils::releaseAvFrame(&frame);
-}
-
-void VideoChannel::setRenderFrame(RenderFrameCallBack *callBack) {
-    this->renderFrameCallBack = callBack;
+    sws_freeContext(swsContext);
 }
 
 void *decode_task(void *args) {

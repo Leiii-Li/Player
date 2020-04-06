@@ -29,7 +29,7 @@ Player::Player(PlayerCallBack *callBack) {
     this->callBack = callBack;
     this->avFormatContext = avformat_alloc_context();
 }
-void Player::setRenderFrameCallBack(RenderFrameCallBack *renderFrameCallBack) {
+void Player::setRenderFrameCallBack(RenderFrameCallBack renderFrameCallBack) {
     this->renderFrameCallBack = renderFrameCallBack;
 }
 Player::~Player() {
@@ -151,7 +151,7 @@ void Player::_prepare() {
 
         if (parameters->codec_type == AVMEDIA_TYPE_VIDEO) {
             // 视频流
-            videoChannel = new VideoChannel(i, codecContext);
+            videoChannel = new VideoChannel(i, codecContext,renderFrameCallBack);
         } else if (parameters->codec_type == AVMEDIA_TYPE_AUDIO) {
             // 音频流
             audioChannel = new AudioChannel(i, codecContext);

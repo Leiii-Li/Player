@@ -22,16 +22,42 @@ void *printCodeFormat(void *args);
 JavaVM *javaVm;
 Player *player;
 ANativeWindow *window;
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     javaVm = vm;
     return JNI_VERSION_1_6;
 }
 
-void render(uint8_t *data, int lineSize, int width, int height) {
+static void render(uint8_t *data, int lineSize, int width, int height) {
+    pthread_mutex_lock(&mutex);
     if (!window) {
+        pthread_mutex_unlock(&mutex);
         return;
     }
+    //设置窗口属性
+    ANativeWindow_setBuffersGeometry(window, width,
+                                     height,
+                                     WINDOW_FORMAT_RGBA_8888);
+
+    ANativeWindow_Buffer window_buffer;
+    if (ANativeWindow_lock(window, &window_buffer, 0)) {
+        ANativeWindow_release(window);
+        window = 0;
+        pthread_mutex_unlock(&mutex);
+        return;
+    }
+    uint8_t *dst_data = static_cast<uint8_t *>(window_buffer.bits);
+    //一行需要多少像素 * 4(RGBA)
+    int dst_linesize = window_buffer.stride * 4;
+    uint8_t *src_data = data;
+    int src_linesize = lineSize;
+    //一次拷贝一行
+    for (int i = 0; i < window_buffer.height; ++i) {
+        memcpy(dst_data + i * dst_linesize, src_data + i * src_linesize, dst_linesize);
+    }
+    ANativeWindow_unlockAndPost(window);
+    pthread_mutex_unlock(&mutex);
 
 }
 
@@ -40,6 +66,7 @@ JNIEXPORT void JNICALL
 Java_com_nelson_player_player_PlayerNative_init(JNIEnv *env, jclass clazz, jobject call_back) {
     PlayerCallBack *callBack = new PlayerCallBack(javaVm, env, call_back);
     player = new Player(callBack);
+    player->setRenderFrameCallBack(render);
 }
 
 extern "C"

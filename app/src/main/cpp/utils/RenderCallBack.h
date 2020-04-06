@@ -1,5 +1,5 @@
 //
-// Created by Nelson on 2020/4/5.
+// Created by Nelson on 2020/4/6.
 //
 
 #ifndef PLAYER_RENDERCALLBACK_H
@@ -7,8 +7,8 @@
 
 typedef void (*RenderFrameCallBack)(uint8_t *, int, int, int);
 
-class RenderCallBack {
- public:
+class RenderCallBack{
 
 };
+
 #endif //PLAYER_RENDERCALLBACK_H

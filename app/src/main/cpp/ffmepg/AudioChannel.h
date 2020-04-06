@@ -4,7 +4,6 @@
 
 #ifndef PLAYER_AUDIOCHANNEL_H
 #define PLAYER_AUDIOCHANNEL_H
-
 #include "BaseChannel.h"
 
 class AudioChannel: public BaseChannel {
