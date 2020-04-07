@@ -21,9 +21,9 @@ public class MainActivity extends AppCompatActivity {
         mPlayerHelper = new PlayerHelper(mSurfaceView);
         mPlayerHelper.init();
         File root = Environment.getExternalStorageDirectory();
-        File videoFile  = new File(root,"cutout1.mp4");
+        File videoFile = new File(root, "xinsh.mp4");
         mPlayerHelper.setDataSource(videoFile.getAbsolutePath());
-
+//        mPlayerHelper.setDataSource("http://ivi.bupt.edu.cn/hls/cctv1hd.m3u8");
     }
 
 }

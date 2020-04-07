@@ -22,6 +22,15 @@ extern "C" {
 void *prepare_thread(void *args);
 void *reader_thread(void *args);
 
+
+void m_threadSleep(int sec, int nsec) {
+    struct timespec sleepTime;
+    struct timespec returnTime;
+    sleepTime.tv_sec = sec;
+    sleepTime.tv_nsec = nsec;
+    nanosleep(&sleepTime, &returnTime);
+}
+
 Player::Player(PlayerCallBack *callBack) {
     avcodec_register_all();
     av_register_all();
@@ -75,6 +84,7 @@ void Player::_start() {
     videoChannel->start();
     audioChannel->start();
     while (isPlaying) {
+        m_threadSleep(0, 50000000);
         // 在堆内存中申请一个内存空间
         AVPacket *avPacket = av_packet_alloc();
         int ret = av_read_frame(avFormatContext, avPacket);
@@ -85,14 +95,17 @@ void Player::_start() {
                 videoChannel->packets.push(avPacket);
             } else if (audioChannel && avPacket->stream_index == audioChannel->streamId) {
                 // 音频包
-                audioChannel->packets.push(avPacket);
+//                audioChannel->packets.push(avPacket);
+                ReleaseUtils::releaseAvPacket(&avPacket);
             }
         } else if (ret == AVERROR_EOF) {
             // 读取完成
+            break;
         } else {
-
+            continue;
         }
     }
+    LOGD("Red File Finish");
 }
 
 
@@ -151,7 +164,7 @@ void Player::_prepare() {
 
         if (parameters->codec_type == AVMEDIA_TYPE_VIDEO) {
             // 视频流
-            videoChannel = new VideoChannel(i, codecContext,renderFrameCallBack);
+            videoChannel = new VideoChannel(i, codecContext, renderFrameCallBack);
         } else if (parameters->codec_type == AVMEDIA_TYPE_AUDIO) {
             // 音频流
             audioChannel = new AudioChannel(i, codecContext);
