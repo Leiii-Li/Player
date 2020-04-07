@@ -25,7 +25,7 @@ VideoChannel::VideoChannel(int streamId, AVCodecContext *pContext, RenderFrameCa
 //    // 获取图片转换器转换器
     swsContext = sws_getContext(pContext->width,
                                 pContext->height,
-                                AV_PIX_FMT_RGBA,
+                                AV_PIX_FMT_YUVJ420P,
                                 pContext->width,
                                 pContext->height,
                                 AV_PIX_FMT_RGBA,
