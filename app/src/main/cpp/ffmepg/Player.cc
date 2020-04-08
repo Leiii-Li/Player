@@ -22,12 +22,15 @@ extern "C" {
 void *prepare_thread(void *args);
 void *reader_thread(void *args);
 
-
-void m_threadSleep(int sec, int nsec) {
+/**
+ * 线程睡眠(单位为毫秒)
+ * @param nsec
+ */
+void m_threadSleep(int nsec) {
     struct timespec sleepTime;
     struct timespec returnTime;
-    sleepTime.tv_sec = sec;
-    sleepTime.tv_nsec = nsec;
+    sleepTime.tv_sec = 0;
+    sleepTime.tv_nsec = nsec * 1000000;
     nanosleep(&sleepTime, &returnTime);
 }
 
@@ -84,7 +87,7 @@ void Player::_start() {
     videoChannel->start();
     audioChannel->start();
     while (isPlaying) {
-        m_threadSleep(0, 50000000);
+        m_threadSleep(40);
         // 在堆内存中申请一个内存空间
         AVPacket *avPacket = av_packet_alloc();
         int ret = av_read_frame(avFormatContext, avPacket);
