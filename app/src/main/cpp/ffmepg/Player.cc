@@ -98,8 +98,7 @@ void Player::_start() {
                 videoChannel->packets.push(avPacket);
             } else if (audioChannel && avPacket->stream_index == audioChannel->streamId) {
                 // 音频包
-//                audioChannel->packets.push(avPacket);
-                ReleaseUtils::releaseAvPacket(&avPacket);
+                audioChannel->packets.push(avPacket);
             }
         } else if (ret == AVERROR_EOF) {
             // 读取完成
