@@ -79,9 +79,14 @@ add_library(
         ffmepg/AudioChannel.cc
         ffmepg/VideoChannel.cc
         ffmepg/BaseChannel.h
+        ffmepg/GetPcmCallBack.h
+
         constant/Global.h
         utils/ReleaseUtils.h
         utils/RenderCallBack.h
+
+        helper/OpenSlElHelper.cc
+
         SafeQueue.h)
 
 find_library(
