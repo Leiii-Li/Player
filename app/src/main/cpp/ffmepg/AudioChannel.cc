@@ -6,6 +6,11 @@
 AudioChannel::AudioChannel(int streamId, AVCodecContext *pContext) : BaseChannel(streamId,
                                                                                  pContext) {
 
+    openSlElHelper = new OpenSlElHelper(this);
+}
+
+PcmData *AudioChannel::getPcmData() {
+    return NULL;
 }
 void AudioChannel::start() {
     channelIsWorking = true;

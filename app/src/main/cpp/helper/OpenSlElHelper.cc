@@ -6,6 +6,11 @@
 #include "OpenSlElHelper.h"
 #include "SLES/OpenSLES_Android.h"
 #include "jni.h"
+#include "android/log.h"
+
+#define LOG_TAG "[nelson]"
+#define LOGD(...) ((void)__android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__))
+
 
 void playerCallBack(SLAndroidSimpleBufferQueueItf queue, void *context);
 
@@ -102,9 +107,11 @@ OpenSlElHelper::OpenSlElHelper(GetPcmCallBack *callBack) {
 OpenSlElHelper::~OpenSlElHelper() {
 }
 void playerCallBack(SLAndroidSimpleBufferQueueItf queue, void *context) {
+    LOGD("GetPcm Before");
     OpenSlElHelper *openSlElHelper = static_cast<OpenSlElHelper *>(context);
     PcmData *pcmData = openSlElHelper->callBack->getPcmData();
     if (pcmData && pcmData->dataSize > 0) {
         (*queue)->Enqueue(queue, pcmData->data, pcmData->dataSize);
     }
+    LOGD("GetPcm After");
 }
