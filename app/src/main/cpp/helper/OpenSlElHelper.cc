@@ -17,22 +17,22 @@ void playerCallBack(SLAndroidSimpleBufferQueueItf queue, void *context);
 OpenSlElHelper::OpenSlElHelper(GetPcmCallBack *callBack) {
     this->callBack = callBack;
     /**
-      * 1、创建引擎并获取引擎接口
-      */
+     * 1、创建引擎并获取引擎接口
+     */
     SLresult result;
     // 1.1 创建引擎 SLObjectItf engineObject
-    result = slCreateEngine(&audioEngine, 0, NULL, 0, NULL, NULL);
+    result = slCreateEngine(&engineObject, 0, NULL, 0, NULL, NULL);
     if (SL_RESULT_SUCCESS != result) {
         return;
     }
     // 1.2 初始化引擎  init
-    result = (*audioEngine)->Realize(audioEngine, SL_BOOLEAN_FALSE);
+    result = (*engineObject)->Realize(engineObject, SL_BOOLEAN_FALSE);
     if (SL_RESULT_SUCCESS != result) {
         return;
     }
     // 1.3 获取引擎接口SLEngineItf engineInterface
-    result = (*audioEngine)->GetInterface(audioEngine, SL_IID_ENGINE,
-                                          &audioEngineInterface);
+    result = (*engineObject)->GetInterface(engineObject, SL_IID_ENGINE,
+                                           &engineInterface);
     if (SL_RESULT_SUCCESS != result) {
         return;
     }
@@ -41,8 +41,8 @@ OpenSlElHelper::OpenSlElHelper(GetPcmCallBack *callBack) {
      * 2、设置混音器
      */
     // 2.1 创建混音器SLObjectItf outputMixObject
-    result = (*audioEngineInterface)->CreateOutputMix(audioEngineInterface, &outputMixObject, 0,
-                                                      0, 0);
+    result = (*engineInterface)->CreateOutputMix(engineInterface, &outputMixObject, 0,
+                                                 0, 0);
     if (SL_RESULT_SUCCESS != result) {
         return;
     }
@@ -77,41 +77,43 @@ OpenSlElHelper::OpenSlElHelper(GetPcmCallBack *callBack) {
     const SLInterfaceID ids[1] = {SL_IID_BUFFERQUEUE};
     const SLboolean req[1] = {SL_BOOLEAN_TRUE};
     //3.3 创建播放器
-    (*audioEngineInterface)->CreateAudioPlayer(audioEngineInterface, &playerObject, &slDataSource,
-                                               &audioSnk, 1,
-                                               ids, req);
+    (*engineInterface)->CreateAudioPlayer(engineInterface, &bqPlayerObject, &slDataSource,
+                                          &audioSnk, 1,
+                                          ids, req);
     //初始化播放器
-    (*playerObject)->Realize(playerObject, SL_BOOLEAN_FALSE);
+    (*bqPlayerObject)->Realize(bqPlayerObject, SL_BOOLEAN_FALSE);
 
     //得到接口后调用  获取Player接口
-    (*playerObject)->GetInterface(playerObject, SL_IID_PLAY, &playerInterface);
-    /**
-    * 4、设置播放回调函数
-    */
-    //获取播放器队列接口
-    (*playerObject)->GetInterface(playerObject, SL_IID_BUFFERQUEUE,
-                                  &bufferQueue);
-    //设置回调
-    (*bufferQueue)->RegisterCallback(bufferQueue, playerCallBack, this);
+    (*bqPlayerObject)->GetInterface(bqPlayerObject, SL_IID_PLAY, &bqPlayerInterface);
 
+    /**
+     * 4、设置播放回调函数
+     */
+    //获取播放器队列接口
+    (*bqPlayerObject)->GetInterface(bqPlayerObject, SL_IID_BUFFERQUEUE,
+                                    &bqPlayerBufferQueueInterface);
+    //设置回调
+    (*bqPlayerBufferQueueInterface)->RegisterCallback(bqPlayerBufferQueueInterface,
+                                                      playerCallBack, this);
     /**
      * 5、设置播放状态
-    */
-    (*playerInterface)->SetPlayState(playerInterface, SL_PLAYSTATE_PLAYING);
-
-    /**
-     * 6、手动激活一下这个回调
      */
-    playerCallBack(bufferQueue, this);
+    (*bqPlayerInterface)->SetPlayState(bqPlayerInterface, SL_PLAYSTATE_PLAYING);
+
 }
 OpenSlElHelper::~OpenSlElHelper() {
 }
+
+void OpenSlElHelper::active() {
+    /**
+     * 6、手动激活一下这个回调
+     */
+    playerCallBack(bqPlayerBufferQueueInterface, this);
+}
 void playerCallBack(SLAndroidSimpleBufferQueueItf queue, void *context) {
-    LOGD("GetPcm Before");
     OpenSlElHelper *openSlElHelper = static_cast<OpenSlElHelper *>(context);
     PcmData *pcmData = openSlElHelper->callBack->getPcmData();
     if (pcmData && pcmData->dataSize > 0) {
         (*queue)->Enqueue(queue, pcmData->data, pcmData->dataSize);
     }
-    LOGD("GetPcm After");
 }

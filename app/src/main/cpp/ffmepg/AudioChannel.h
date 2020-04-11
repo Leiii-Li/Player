@@ -7,11 +7,13 @@
 #include "BaseChannel.h"
 #include "../ffmepg/GetPcmCallBack.h"
 #include "../helper/OpenSlElHelper.h"
-
+extern "C" {
+#include <libswresample/swresample.h>
+}
 class AudioChannel: public BaseChannel, GetPcmCallBack {
  public:
   AudioChannel(int streamId, AVCodecContext *pContext);
-
+  ~AudioChannel();
   //进行一些准备工作
   void start();
   void stop();
@@ -27,6 +29,11 @@ class AudioChannel: public BaseChannel, GetPcmCallBack {
  private:
   pthread_t decodeThreadId;
   SafeQueue<AVFrame *> audioQueue;
+  int out_channels;
+  int out_sample_size;
+  int out_sample_rate;
+  SwrContext *swrContext;
+  uint8_t *data;
 };
 
 

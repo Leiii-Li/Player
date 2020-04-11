@@ -14,20 +14,24 @@ class OpenSlElHelper {
   OpenSlElHelper(GetPcmCallBack *callBack);
   ~OpenSlElHelper();
   GetPcmCallBack *callBack;
+  void active();
+  bool isActive = false;
  private:
-  // PCM播放器
-  SLObjectItf playerObject = 0;
-  // 混音器引擎
-  SLObjectItf outputMixObject = 0;
-  // SLEL 引擎
-  SLObjectItf audioEngine = 0;
-  //
-  SLEngineItf audioEngineInterface = 0;
-  //
-  SLPlayItf playerInterface = 0;
 
-  // 音频解码后的队列
-  SLAndroidSimpleBufferQueueItf bufferQueue = 0;
+  /**
+      * OpenSL ES
+      */
+  // 引擎与引擎接口
+  SLObjectItf engineObject = 0;
+  SLEngineItf engineInterface = 0;
+  //混音器
+  SLObjectItf outputMixObject = 0;
+  //播放器
+  SLObjectItf bqPlayerObject = 0;
+  //播放器接口
+  SLPlayItf bqPlayerInterface = 0;
+
+  SLAndroidSimpleBufferQueueItf bqPlayerBufferQueueInterface = 0;
 };
 
 
