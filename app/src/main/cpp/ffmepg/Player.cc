@@ -166,7 +166,9 @@ void Player::_prepare() {
 
         if (parameters->codec_type == AVMEDIA_TYPE_VIDEO) {
             // 视频流
-            videoChannel = new VideoChannel(i, codecContext, renderFrameCallBack);
+            AVRational rational = stream->avg_frame_rate;
+            double fps = av_q2d(rational);
+            videoChannel = new VideoChannel(i,fps, codecContext, renderFrameCallBack);
         } else if (parameters->codec_type == AVMEDIA_TYPE_AUDIO) {
             // 音频流
             audioChannel = new AudioChannel(i, codecContext);

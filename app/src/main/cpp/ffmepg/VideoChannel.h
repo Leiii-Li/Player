@@ -16,7 +16,7 @@ extern "C" {
 class VideoChannel: public BaseChannel {
 
  public:
-  VideoChannel(int streamId, AVCodecContext *pContext, RenderFrameCallBack callBack);
+  VideoChannel(int streamId, double fps, AVCodecContext *pContext, RenderFrameCallBack callBack);
   ~VideoChannel();
   //进行一些准备工作
   void start();
@@ -27,6 +27,8 @@ class VideoChannel: public BaseChannel {
   //渲染线程
   void runRenderTask();
  private:
+  double fps;
+  double frame_delays;
   pthread_t decodeThreadId;
   pthread_t renderThreadId;
   SafeQueue<AVFrame *> frameQueue;

@@ -6,9 +6,11 @@
 extern "C" {
 #include <libswscale/swscale.h>
 #include <libavutil/imgutils.h>
+#include <libavutil/time.h>
 }
 #include "../utils/ReleaseUtils.h"
 #include "../utils/RenderCallBack.h"
+#include "pthread.h"
 
 #define LOG_TAG "[nelson]"
 #define LOGD(...) ((void)__android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__))
@@ -16,12 +18,28 @@ extern "C" {
 void *decode_task(void *args);
 void *render_task(void *args);
 
+/**
+ * 线程睡眠(单位为毫秒)
+ * @param nsec
+ */
+void m_threadSleep(double nsec) {
+    struct timespec sleepTime;
+    struct timespec returnTime;
+    sleepTime.tv_sec = 0;
+    sleepTime.tv_nsec = static_cast<long>(nsec * 1000000);
+    nanosleep(&sleepTime, &returnTime);
+}
+
 #include "VideoChannel.h"
-VideoChannel::VideoChannel(int streamId, AVCodecContext *pContext, RenderFrameCallBack callBack)
+VideoChannel::VideoChannel(int streamId,
+                           double fps,
+                           AVCodecContext *pContext,
+                           RenderFrameCallBack callBack)
         : BaseChannel(streamId,
                       pContext) {
     frameQueue.setReleaseCallBack(ReleaseUtils::releaseAvFrame);
-
+    this->fps = fps;
+    this->frame_delays = 1 / fps;
 //    // 获取图片转换器转换器
     swsContext = sws_getContext(pContext->width,
                                 pContext->height,
@@ -120,6 +138,7 @@ void VideoChannel::runRenderTask() {
                                 avCodecContext->width,
                                 avCodecContext->height);
         }
+        m_threadSleep(frame_delays);
         ReleaseUtils::releaseAvFrame(&frame);
     }
     av_freep(&dst_data[0]);
