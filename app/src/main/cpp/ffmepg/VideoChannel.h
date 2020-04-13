@@ -11,12 +11,17 @@ extern "C" {
 #include "BaseChannel.h"
 #include "pthread.h"
 #include "../utils/RenderCallBack.h"
+#include "../constant/Session.h"
 
 
 class VideoChannel: public BaseChannel {
 
  public:
-  VideoChannel(int streamId, double fps, AVCodecContext *pContext, RenderFrameCallBack callBack);
+  VideoChannel(int streamId,
+               AVRational time_base, Session *session,
+               double fps,
+               AVCodecContext *pContext,
+               RenderFrameCallBack callBack);
   ~VideoChannel();
   //进行一些准备工作
   void start();
@@ -34,6 +39,7 @@ class VideoChannel: public BaseChannel {
   SafeQueue<AVFrame *> frameQueue;
   SwsContext *swsContext;
   RenderFrameCallBack renderFrameCallBack;
+  Session *session;
 };
 
 

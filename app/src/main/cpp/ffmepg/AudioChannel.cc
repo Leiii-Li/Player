@@ -4,13 +4,21 @@
 
 #include "android/log.h"
 #include "AudioChannel.h"
-
+#include "../constant/Session.h"
 
 #define LOG_TAG "[nelson]"
 #define LOGD(...) ((void)__android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__))
 
-AudioChannel::AudioChannel(int streamId, AVCodecContext *pContext) : BaseChannel(streamId,
-                                                                                 pContext) {
+
+AudioChannel::AudioChannel(int streamId,
+                           AVRational time_base,
+                           Session *session,
+                           AVCodecContext *pContext)
+        : BaseChannel(streamId,
+                      time_base,
+                      pContext) {
+
+    this->session = session;
 
     openSlElHelper = new OpenSlElHelper(this);
 
@@ -73,6 +81,8 @@ PcmData *AudioChannel::getPcmData() {
                               frame->nb_samples);
     //获得   samples 个   * 2 声道 * 2字节（16位）
     data_size = samples * out_sample_size * out_channels;
+
+    session->audio_clock = frame->pts * av_q2d(time_base);
 
     return new PcmData(data, data_size);
 }

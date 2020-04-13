@@ -12,6 +12,7 @@ extern "C" {
 #include "PlayerCallBack.h"
 #include "AudioChannel.h"
 #include "VideoChannel.h"
+#include "../constant/Session.h"
 
 class Player {
  public:
@@ -23,6 +24,7 @@ class Player {
   void start();
   void _start();
   void setRenderFrameCallBack(RenderFrameCallBack renderFrameCallBack);
+
  private:
   char *dataSource;
   AVFormatContext *avFormatContext;
@@ -31,6 +33,7 @@ class Player {
   VideoChannel *videoChannel = 0;
   bool isPlaying = false;
   RenderFrameCallBack renderFrameCallBack;
+  Session *session;
 };
 
 

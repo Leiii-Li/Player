@@ -38,6 +38,7 @@ Player::Player(PlayerCallBack *callBack) {
     avcodec_register_all();
     av_register_all();
     avformat_network_init();
+    this->session = new Session();
     this->callBack = callBack;
     this->avFormatContext = avformat_alloc_context();
 }
@@ -163,15 +164,15 @@ void Player::_prepare() {
             callBack->onError(THREAD_CHILD, FFMPEG_OPEN_DECODER_FAIL);
             return;
         }
-
+        AVRational time_base = stream->time_base;
         if (parameters->codec_type == AVMEDIA_TYPE_VIDEO) {
             // 视频流
             AVRational rational = stream->avg_frame_rate;
             double fps = av_q2d(rational);
-            videoChannel = new VideoChannel(i,fps, codecContext, renderFrameCallBack);
+            videoChannel = new VideoChannel(i, time_base,session, fps, codecContext, renderFrameCallBack);
         } else if (parameters->codec_type == AVMEDIA_TYPE_AUDIO) {
             // 音频流
-            audioChannel = new AudioChannel(i, codecContext);
+            audioChannel = new AudioChannel(i, time_base,session, codecContext);
         }
         if (!videoChannel && !audioChannel) {
             callBack->onError(THREAD_CHILD, FFMPEG_NOMEDIA);

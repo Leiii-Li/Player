@@ -11,12 +11,25 @@ extern "C" {
 #include "../utils/ReleaseUtils.h"
 #include "../utils/RenderCallBack.h"
 #include "pthread.h"
+#include "queue"
 
 #define LOG_TAG "[nelson]"
 #define LOGD(...) ((void)__android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__))
 
 void *decode_task(void *args);
 void *render_task(void *args);
+
+/**
+ * 丢已经解码的图片
+ * @param q
+ */
+void dropAvFrame(std::queue<AVFrame *> &q) {
+    if (!q.empty()) {
+        AVFrame *frame = q.front();
+        ReleaseUtils::releaseAvFrame(&frame);
+        q.pop();
+    }
+}
 
 /**
  * 线程睡眠(单位为毫秒)
@@ -31,14 +44,23 @@ void m_threadSleep(double nsec) {
 }
 
 #include "VideoChannel.h"
+#include "../constant/Session.h"
 VideoChannel::VideoChannel(int streamId,
+                           AVRational time_base, Session *session,
                            double fps,
-                           AVCodecContext *pContext,
-                           RenderFrameCallBack callBack)
-        : BaseChannel(streamId,
-                      pContext) {
+                           AVCodecContext
+                           *pContext,
+                           RenderFrameCallBack callBack) : BaseChannel(streamId,
+                                                                       time_base,
+                                                                       pContext) {
+
+    this->session = session;
+
     frameQueue.setReleaseCallBack(ReleaseUtils::releaseAvFrame);
+
+    frameQueue.setSyncHandle(dropAvFrame);
     this->fps = fps;
+
     this->frame_delays = 1 / fps;
 //    // 获取图片转换器转换器
     swsContext = sws_getContext(pContext->width,
@@ -51,7 +73,7 @@ VideoChannel::VideoChannel(int streamId,
                                 0,
                                 0,
                                 0);
-    //设置回调
+//设置回调
     renderFrameCallBack = callBack;
 }
 
@@ -132,13 +154,40 @@ void VideoChannel::runRenderTask() {
                       dst_data,
                       dst_lineSize);
         }
+
+        double clock = frame->best_effort_timestamp * av_q2d(time_base);
+        //额外的间隔时间
+        double extra_delay = frame->repeat_pict / (2 * fps);
+        // 真实需要的间隔时间
+        double delays = extra_delay + frame_delays;
+        if (clock == 0) {
+            m_threadSleep(frame_delays);
+        } else {
+            //间隔 音视频相差的间隔
+            double diff = clock - session->audio_clock;
+            if (diff > 0) {
+                //大于0 表示视频比较快
+                m_threadSleep(delays + diff);
+            } else if (diff < 0) {
+                //小于0 表示音频比较快
+                // 视频包积压的太多了 （丢包）
+                if (fabs(diff) >= 0.05) {
+                    ReleaseUtils::releaseAvFrame(&frame);
+                    //丢包
+                    frameQueue.sync();
+                    continue;
+                } else {
+                    //不睡了 快点赶上 音频
+                }
+            }
+        }
+
         if (renderFrameCallBack) {
             renderFrameCallBack(dst_data[0],
                                 dst_lineSize[0],
                                 avCodecContext->width,
                                 avCodecContext->height);
         }
-        m_threadSleep(frame_delays);
         ReleaseUtils::releaseAvFrame(&frame);
     }
     av_freep(&dst_data[0]);

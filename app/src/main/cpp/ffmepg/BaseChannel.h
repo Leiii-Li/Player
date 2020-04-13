@@ -12,9 +12,10 @@ extern "C" {
 
 class BaseChannel {
  public:
-  BaseChannel(int streamId, AVCodecContext *codecContext) {
+  BaseChannel(int streamId, AVRational time_base, AVCodecContext *codecContext) {
       this->streamId = streamId;
       this->avCodecContext = codecContext;
+      this->time_base = time_base;
       packets.setReleaseCallBack(ReleaseUtils::releaseAvPacket);
   }
   // 如果该方法不声明为虚函数，那么子类会调用父类的析构函数
@@ -28,6 +29,8 @@ class BaseChannel {
   SafeQueue<AVPacket *> packets;
   AVCodecContext *avCodecContext;
 
+  AVRational time_base;
+
   //进行一些准备工作
   virtual void start() = 0;
   virtual void stop() = 0;
@@ -36,6 +39,5 @@ class BaseChannel {
   virtual void runDecodeTask() = 0;
   //渲染线程
   virtual void runRenderTask() = 0;
-
 };
 #endif //PLAYER_BASECHANNEL_H

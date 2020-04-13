@@ -82,6 +82,8 @@ add_library(
         ffmepg/GetPcmCallBack.h
 
         constant/Global.h
+        constant/Session.h
+
         utils/ReleaseUtils.h
         utils/RenderCallBack.h
 
