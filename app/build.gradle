@@ -12,7 +12,15 @@ android {
         testInstrumentationRunner "androidx.test.runner.AwndroidJUnitRunner"
         externalNativeBuild {
             cmake {
-                abiFilters "armeabi-v7a"
+//                abiFilters "armeabi-v7a"
+            }
+        }
+        splits {
+            abi {
+                enable true
+                reset()
+                include  'armeabi-v7a'
+                universalApk false
             }
         }
     }
@@ -34,7 +42,6 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     testImplementation 'junit:junit:4.12'

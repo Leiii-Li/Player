@@ -9,7 +9,7 @@ add_library(avcodec-57
         IMPORTED)
 set_target_properties(avcodec-57
         PROPERTIES IMPORTED_LOCATION
-        ${ARM_DIR}/${ANDROID_ABI}/libavcodec-57.so
+        ${ARM_DIR}/armeabi-v7a/libavcodec-57.so
         )
 
 add_library(avdevice-57
@@ -17,7 +17,7 @@ add_library(avdevice-57
         IMPORTED)
 set_target_properties(avdevice-57
         PROPERTIES IMPORTED_LOCATION
-        ${ARM_DIR}/${ANDROID_ABI}/libavdevice-57.so
+        ${ARM_DIR}/armeabi-v7a/libavdevice-57.so
         )
 
 add_library(avfilter-6
@@ -25,7 +25,7 @@ add_library(avfilter-6
         IMPORTED)
 set_target_properties(avfilter-6
         PROPERTIES IMPORTED_LOCATION
-        ${ARM_DIR}/${ANDROID_ABI}/libavfilter-6.so
+        ${ARM_DIR}/armeabi-v7a/libavfilter-6.so
         )
 
 add_library(avformat-57
@@ -33,7 +33,7 @@ add_library(avformat-57
         IMPORTED)
 set_target_properties(avformat-57
         PROPERTIES IMPORTED_LOCATION
-        ${ARM_DIR}/${ANDROID_ABI}/libavformat-57.so
+        ${ARM_DIR}/armeabi-v7a/libavformat-57.so
         )
 
 add_library(avutil-55
@@ -41,7 +41,7 @@ add_library(avutil-55
         IMPORTED)
 set_target_properties(avutil-55
         PROPERTIES IMPORTED_LOCATION
-        ${ARM_DIR}/${ANDROID_ABI}/libavutil-55.so
+        ${ARM_DIR}/armeabi-v7a/libavutil-55.so
         )
 
 add_library(postproc-54
@@ -49,7 +49,7 @@ add_library(postproc-54
         IMPORTED)
 set_target_properties(postproc-54
         PROPERTIES IMPORTED_LOCATION
-        ${ARM_DIR}/${ANDROID_ABI}/libpostproc-54.so
+        ${ARM_DIR}/armeabi-v7a/libpostproc-54.so
         )
 
 add_library(swresample-2
@@ -57,7 +57,7 @@ add_library(swresample-2
         IMPORTED)
 set_target_properties(swresample-2
         PROPERTIES IMPORTED_LOCATION
-        ${ARM_DIR}/${ANDROID_ABI}/libswresample-2.so
+        ${ARM_DIR}/armeabi-v7a/libswresample-2.so
         )
 
 add_library(swscale-4
@@ -65,7 +65,7 @@ add_library(swscale-4
         IMPORTED)
 set_target_properties(swscale-4
         PROPERTIES IMPORTED_LOCATION
-        ${ARM_DIR}/${ANDROID_ABI}/libswscale-4.so
+        ${ARM_DIR}/armeabi-v7a/libswscale-4.so
         )
 
 add_library(
