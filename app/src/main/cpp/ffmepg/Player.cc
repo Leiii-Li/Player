@@ -87,7 +87,7 @@ void Player::_start() {
     videoChannel->start();
     audioChannel->start();
     while (isPlaying) {
-        m_threadSleep(3);
+        m_threadSleep(10);
         // 在堆内存中申请一个内存空间
         AVPacket *avPacket = av_packet_alloc();
         int ret = av_read_frame(avFormatContext, avPacket);

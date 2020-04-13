@@ -14,8 +14,11 @@ AudioChannel::AudioChannel(int streamId, AVCodecContext *pContext) : BaseChannel
 
     openSlElHelper = new OpenSlElHelper(this);
 
+    //声道布局：声道数
     out_channels = av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
+    // 采样位数格式
     out_sample_size = av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
+    // 采样率
     out_sample_rate = 44100;
 
     //0+输出声道+输出采样位+输出采样率+  输入的3个参数
@@ -52,7 +55,7 @@ PcmData *AudioChannel::getPcmData() {
     //48000HZ 8位 =》 44100 16位
     //重采样
     // 假设我们输入了10个数据 ，swrContext转码器 这一次处理了8个数据
-    // 那么如果不加delays(上次没处理完的数据) , 积压
+    // 那么如果不加delays(上次没处理完的数据) 会造成积压
     int64_t delays = swr_get_delay(swrContext, frame->sample_rate);
     // 将 nb_samples 个数据 由 sample_rate采样率转成 44100 后 返回多少个数据
     // 10  个 48000 = nb 个 44100
