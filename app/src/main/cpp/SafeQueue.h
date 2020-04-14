@@ -33,7 +33,7 @@ class SafeQueue {
    * 入队列
    * @param new_value
    */
-  void push(const T new_value) {
+  void push(T new_value) {
       pthread_mutex_lock(&mutex);
       if (work) {
           q.push(new_value);

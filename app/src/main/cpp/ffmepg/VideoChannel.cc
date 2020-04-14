@@ -35,11 +35,11 @@ void dropAvFrame(std::queue<AVFrame *> &q) {
  * 线程睡眠(单位为毫秒)
  * @param nsec
  */
-void m_threadSleep(double nsec) {
+void m_threadSleep(long nsec) {
     struct timespec sleepTime;
     struct timespec returnTime;
     sleepTime.tv_sec = 0;
-    sleepTime.tv_nsec = static_cast<long>(nsec * 1000000);
+    sleepTime.tv_nsec = nsec * 1000000;
     nanosleep(&sleepTime, &returnTime);
 }
 
@@ -104,6 +104,9 @@ void VideoChannel::runDecodeTask() {
     LOGD("Run VideoDecodeTask");
     AVPacket *packet = 0;
     while (channelIsWorking) {
+        while (frameQueue.size() > 200) {
+            m_threadSleep(1000);
+        }
         int ret = packets.pop(packet);
         if (!channelIsWorking) {
             break;
@@ -167,7 +170,7 @@ void VideoChannel::runRenderTask() {
             double diff = clock - session->audio_clock;
             if (diff > 0) {
                 //大于0 表示视频比较快
-                m_threadSleep(delays + diff);
+                m_threadSleep((delays + diff) * 1000);
             } else if (diff < 0) {
                 //小于0 表示音频比较快
                 // 视频包积压的太多了 （丢包）

@@ -96,9 +96,15 @@ void Player::_start() {
             //读取成功
             if (videoChannel && avPacket->stream_index == videoChannel->streamId) {
                 // 视频包
+                while (videoChannel->packets.size() > 200) {
+                    m_threadSleep(1000);
+                }
                 videoChannel->packets.push(avPacket);
             } else if (audioChannel && avPacket->stream_index == audioChannel->streamId) {
                 // 音频包
+                while (audioChannel->packets.size() > 200) {
+                    m_threadSleep(1000);
+                }
                 audioChannel->packets.push(avPacket);
             }
         } else if (ret == AVERROR_EOF) {
@@ -169,10 +175,11 @@ void Player::_prepare() {
             // 视频流
             AVRational rational = stream->avg_frame_rate;
             double fps = av_q2d(rational);
-            videoChannel = new VideoChannel(i, time_base,session, fps, codecContext, renderFrameCallBack);
+            videoChannel =
+                    new VideoChannel(i, time_base, session, fps, codecContext, renderFrameCallBack);
         } else if (parameters->codec_type == AVMEDIA_TYPE_AUDIO) {
             // 音频流
-            audioChannel = new AudioChannel(i, time_base,session, codecContext);
+            audioChannel = new AudioChannel(i, time_base, session, codecContext);
         }
         if (!videoChannel && !audioChannel) {
             callBack->onError(THREAD_CHILD, FFMPEG_NOMEDIA);

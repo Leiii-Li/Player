@@ -142,6 +142,7 @@ void AudioChannel::runDecodeTask() {
             openSlElHelper->active();
         }
     }
+    ReleaseUtils::releaseAvPacket(&packet);
     LOGD("Audio Decode Task Finish");
 }
 void AudioChannel::runRenderTask() {
