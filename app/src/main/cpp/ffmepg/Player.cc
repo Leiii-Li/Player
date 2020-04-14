@@ -131,6 +131,9 @@ void *prepare_thread(void *args) {
 
 void Player::_prepare() {
     int ret = avformat_open_input(&avFormatContext, dataSource, NULL, NULL);
+
+    session->totalDuration = avFormatContext->duration / 1000000;
+
     if (ret != 0) {
         callBack->onError(THREAD_CHILD, FFMPEG_CAN_NOT_OPEN_URL);
         return;
@@ -187,4 +190,10 @@ void Player::_prepare() {
         }
     }
     callBack->onPrepare(THREAD_CHILD);
+}
+int Player::getTotalDuration() {
+    return session->totalDuration;
+}
+int Player::getCurrentDuration() {
+    return session->currentDuration;
 }

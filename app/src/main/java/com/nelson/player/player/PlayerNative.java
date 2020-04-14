@@ -19,7 +19,7 @@ class PlayerNative {
 
     public static native String getVersion();
 
-    public static native void init(FFmpegCallBack callBack);
+    public static native void init(PlayerCallBack callBack);
 
     public static native void setDataSource(String dataSource);
 
@@ -28,4 +28,8 @@ class PlayerNative {
     public static native void prepare();
 
     public static native void setSurface(Surface surface, int width, int height);
+
+    public static native int getTotalDuration();
+
+    public static native int getCurrentDuration();
 }

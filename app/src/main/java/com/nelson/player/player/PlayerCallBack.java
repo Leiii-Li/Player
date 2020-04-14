@@ -1,6 +1,6 @@
 package com.nelson.player.player;
 
-public interface FFmpegCallBack {
+public interface PlayerCallBack {
 
     void onProgress(String msg);
 

@@ -83,6 +83,9 @@ PcmData *AudioChannel::getPcmData() {
     data_size = samples * out_sample_size * out_channels;
 
     session->audio_clock = frame->pts * av_q2d(time_base);
+
+    session->currentDuration = static_cast<int>(session->audio_clock);
+
     ReleaseUtils::releaseAvFrame(&frame);
     return new PcmData(data, data_size);
 }

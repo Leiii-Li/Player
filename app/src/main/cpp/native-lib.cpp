@@ -151,3 +151,17 @@ Java_com_nelson_player_player_PlayerNative_setSurface(JNIEnv *env,
     }
     window = ANativeWindow_fromSurface(env, surface);
 }
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_nelson_player_player_PlayerNative_getTotalDuration(JNIEnv *env, jclass clazz) {
+    int totalDuration = player->getTotalDuration();
+    return totalDuration;
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_nelson_player_player_PlayerNative_getCurrentDuration(JNIEnv *env, jclass clazz) {
+    int currentDuration = player->getCurrentDuration();
+    return currentDuration;
+}

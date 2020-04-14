@@ -8,6 +8,8 @@
 class Session {
  public:
   double audio_clock;
+  int totalDuration;
+  int currentDuration;
 };
 
 #endif //PLAYER_SESSION_H

@@ -4,12 +4,14 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
+import com.nelson.player.MainActivity;
 
 public class PlayerHelper implements Callback {
 
     private static final String TAG = PlayerHelper.class.getSimpleName();
     private String mDataSource;
     private SurfaceView mSurfaceView;
+    private PlayerCallBack mCallBack;
 
     public PlayerHelper(SurfaceView surfaceView) {
         mSurfaceView = surfaceView;
@@ -22,29 +24,41 @@ public class PlayerHelper implements Callback {
     }
 
     public void init() {
-        PlayerNative.init(mFFmpegCallBack);
+        PlayerNative.init(mCallBackWrapper);
     }
 
-    private FFmpegCallBack mFFmpegCallBack = new FFmpegCallBack() {
+    private PlayerCallBack mCallBackWrapper = new PlayerCallBack() {
         @Override
         public void onProgress(String msg) {
             Log.i(TAG, "onProgress: " + msg);
+            if (mCallBack != null) {
+                mCallBack.onProgress(msg);
+            }
         }
 
         @Override
         public void onError(int errorCode) {
             Log.i(TAG, "onError: " + errorCode);
+            if (mCallBack != null) {
+                mCallBack.onError(errorCode);
+            }
         }
 
         @Override
         public void onSuccess() {
             Log.i(TAG, "onSuccess: ");
+            if (mCallBack != null) {
+                mCallBack.onSuccess();
+            }
         }
 
         @Override
         public void onPrepare() {
             Log.i(TAG, "onPrepare: ");
             PlayerNative.start();
+            if (mCallBack != null) {
+                mCallBack.onPrepare();
+            }
         }
     };
 
@@ -55,11 +69,23 @@ public class PlayerHelper implements Callback {
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        PlayerNative.setSurface(holder.getSurface(),width,height);
+        PlayerNative.setSurface(holder.getSurface(), width, height);
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
 
+    }
+
+    public void setCallBack(PlayerCallBack playerCallBack) {
+        mCallBack = playerCallBack;
+    }
+
+    public int getTotalDuration() {
+        return PlayerNative.getTotalDuration();
+    }
+
+    public int getCurrentDuration() {
+        return PlayerNative.getCurrentDuration();
     }
 }

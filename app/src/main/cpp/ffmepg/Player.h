@@ -25,6 +25,8 @@ class Player {
   void _start();
   void setRenderFrameCallBack(RenderFrameCallBack renderFrameCallBack);
 
+  int getTotalDuration();
+  int getCurrentDuration();
  private:
   char *dataSource;
   AVFormatContext *avFormatContext;
