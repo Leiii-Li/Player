@@ -36,4 +36,6 @@ class PlayerNative {
     public static native void pause();
 
     public static native void resume();
+
+    public static native void captureImage();
 }

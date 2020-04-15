@@ -1,6 +1,11 @@
 package com.nelson.player;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
@@ -15,6 +20,7 @@ import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import java.io.File;
+import java.nio.ByteBuffer;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
@@ -58,6 +64,20 @@ public class MainActivity extends AppCompatActivity {
         public void onResume() {
             mViewDataBinding.setIsPlaying(true);
         }
+
+        @Override
+        public void captureImage(byte[] data, int width, int height) {
+            final Bitmap bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
+            bitmap.copyPixelsFromBuffer(ByteBuffer.wrap(data));
+            mViewDataBinding.getRoot().post(new Runnable() {
+                @Override
+                public void run() {
+                    if (bitmap != null) {
+                        mViewDataBinding.displayIv.setImageBitmap(bitmap);
+                    }
+                }
+            });
+        }
     }
 
     @SuppressLint("CheckResult")
@@ -86,6 +106,9 @@ public class MainActivity extends AppCompatActivity {
                     mViewDataBinding.setIsPlaying(true);
                     mPlayerHelper.resume();
                 }
+                break;
+            case R.id.capture_img_btn:
+                mPlayerHelper.captureImage();
                 break;
         }
     }

@@ -13,4 +13,6 @@ public interface PlayerCallBack {
     void onPause();
 
     void onResume();
+
+    void captureImage(byte[] data, int width, int height);
 }

@@ -1,5 +1,7 @@
 package com.nelson.player.player;
 
+import android.util.Log;
+
 public class PlayerCallBackAdapter implements PlayerCallBack {
 
     @Override
@@ -29,6 +31,11 @@ public class PlayerCallBackAdapter implements PlayerCallBack {
 
     @Override
     public void onResume() {
+
+    }
+
+    @Override
+    public void captureImage(byte[] data, int width, int height) {
 
     }
 }

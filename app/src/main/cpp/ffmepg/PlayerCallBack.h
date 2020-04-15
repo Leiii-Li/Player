@@ -17,6 +17,7 @@ class PlayerCallBack {
   void onProgress(int threadId, const char *msg);
   void onResume(int threadId);
   void onPause(int threadId);
+  void captureImage(uint8_t *data, int width, int height);
  private:
   void callJavaVoidMethod(int threadId, jmethodID methodId);
   JavaVM *javaVm;
@@ -28,6 +29,7 @@ class PlayerCallBack {
   jmethodID onProgressMethodId;
   jmethodID onResumeMethodId;
   jmethodID onPauseMethodId;
+  jmethodID captureImageMethodId;
 };
 
 

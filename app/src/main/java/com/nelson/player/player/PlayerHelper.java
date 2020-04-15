@@ -86,6 +86,13 @@ public class PlayerHelper implements Callback {
                 mCallBack.onResume();
             }
         }
+
+        @Override
+        public void captureImage(byte[] data, int width, int height) {
+            if(mCallBack!=null){
+                mCallBack.captureImage(data,width,height);
+            }
+        }
     };
 
     @Override
@@ -151,5 +158,9 @@ public class PlayerHelper implements Callback {
         streamVolume += distance;
 
         mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, streamVolume, FLAG_SHOW_UI);
+    }
+
+    public void captureImage() {
+        PlayerNative.captureImage();
     }
 }
