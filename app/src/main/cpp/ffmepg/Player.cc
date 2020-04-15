@@ -201,6 +201,10 @@ int Player::getCurrentDuration() {
 }
 
 void Player::pause() {
-    isPlaying = false;
-
+    videoChannel->pause();
+    audioChannel->pause();
+}
+void Player::resume() {
+    videoChannel->resume();
+    audioChannel->resume();
 }

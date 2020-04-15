@@ -31,6 +31,8 @@ class VideoChannel: public BaseChannel {
   void runDecodeTask();
   //渲染线程
   void runRenderTask();
+  void pause();
+  void resume();
  private:
   double fps;
   double frame_delays;

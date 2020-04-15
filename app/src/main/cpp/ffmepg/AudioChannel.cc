@@ -51,6 +51,9 @@ AudioChannel::~AudioChannel() {
 }
 
 PcmData *AudioChannel::getPcmData() {
+    if (isPause) {
+        return new PcmData(NULL, -1);
+    }
     int data_size = 0;
     AVFrame *frame;
     int ret = audioQueue.pop(frame);
@@ -87,7 +90,12 @@ PcmData *AudioChannel::getPcmData() {
     session->currentDuration = static_cast<int>(session->audio_clock);
 
     ReleaseUtils::releaseAvFrame(&frame);
-    return new PcmData(data, data_size);
+
+    if (isPause) {
+        return new PcmData(NULL, -1);
+    } else {
+        return new PcmData(data, data_size);
+    }
 }
 
 void *decode_audio_task(void *args) {
@@ -115,6 +123,9 @@ void AudioChannel::runDecodeTask() {
     LOGD("Run Audio Decode Task");
     AVPacket *packet = 0;
     while (channelIsWorking) {
+        if (isPause) {
+            continue;
+        }
         int ret = packets.pop(packet);
         if (!channelIsWorking) {
             break;
@@ -150,4 +161,11 @@ void AudioChannel::runDecodeTask() {
 }
 void AudioChannel::runRenderTask() {
 
+}
+void AudioChannel::pause() {
+    isPause = true;
+}
+void AudioChannel::resume() {
+    isPause = false;
+    openSlElHelper->resume();
 }

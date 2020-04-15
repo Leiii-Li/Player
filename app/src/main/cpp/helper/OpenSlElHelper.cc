@@ -110,10 +110,21 @@ void OpenSlElHelper::active() {
      */
     playerCallBack(bqPlayerBufferQueueInterface, this);
 }
+void OpenSlElHelper::pause() {
+    (*bqPlayerInterface)->SetPlayState(bqPlayerInterface, SL_PLAYSTATE_STOPPED);
+    (*bqPlayerBufferQueueInterface)->Clear(bqPlayerBufferQueueInterface);
+}
+
+void OpenSlElHelper::resume() {
+    (*bqPlayerInterface)->SetPlayState(bqPlayerInterface, SL_PLAYSTATE_PLAYING);
+    active();
+}
 void playerCallBack(SLAndroidSimpleBufferQueueItf queue, void *context) {
     OpenSlElHelper *openSlElHelper = static_cast<OpenSlElHelper *>(context);
     PcmData *pcmData = openSlElHelper->callBack->getPcmData();
     if (pcmData && pcmData->dataSize > 0) {
         (*queue)->Enqueue(queue, pcmData->data, pcmData->dataSize);
+    } else if (pcmData && pcmData->dataSize == -1) {
+        openSlElHelper->pause();
     }
 }

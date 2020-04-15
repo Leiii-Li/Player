@@ -16,6 +16,8 @@ class OpenSlElHelper {
   GetPcmCallBack *callBack;
   void active();
   bool isActive = false;
+  void pause();
+  void resume();
  private:
 
   /**

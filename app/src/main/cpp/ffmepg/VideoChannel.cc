@@ -100,10 +100,22 @@ void VideoChannel::stop() {
     frameQueue.clear();
 }
 
+void VideoChannel::pause() {
+    isPause = true;
+}
+
+void VideoChannel::resume() {
+    isPause = false;
+}
+
+
 void VideoChannel::runDecodeTask() {
     LOGD("Run VideoDecodeTask");
     AVPacket *packet = 0;
     while (channelIsWorking) {
+        if (isPause) {
+            continue;
+        }
         while (frameQueue.size() > 200) {
             m_threadSleep(1000);
         }
@@ -144,6 +156,9 @@ void VideoChannel::runRenderTask() {
                    avCodecContext->width, avCodecContext->height, AV_PIX_FMT_RGBA, 1);
     AVFrame *frame = 0;
     while (channelIsWorking) {
+        if (isPause) {
+            continue;
+        }
         int ret = frameQueue.pop(frame);
         if (!channelIsWorking) {
             break;
@@ -185,7 +200,7 @@ void VideoChannel::runRenderTask() {
             }
         }
 
-        if (renderFrameCallBack) {
+        if (renderFrameCallBack && !isPause) {
             renderFrameCallBack(dst_data[0],
                                 dst_lineSize[0],
                                 avCodecContext->width,

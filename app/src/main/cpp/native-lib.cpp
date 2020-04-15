@@ -175,5 +175,5 @@ Java_com_nelson_player_player_PlayerNative_pause(JNIEnv *env, jclass clazz) {
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_nelson_player_player_PlayerNative_resume(JNIEnv *env, jclass clazz) {
-    // TODO: implement resume()
+    player->resume();
 }

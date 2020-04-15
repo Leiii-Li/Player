@@ -25,7 +25,7 @@ class BaseChannel {
 
   int streamId;
   bool channelIsWorking = false;
-
+  bool isPause = false;
   SafeQueue<AVPacket *> packets;
   AVCodecContext *avCodecContext;
 

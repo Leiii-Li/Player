@@ -27,6 +27,8 @@ class AudioChannel: public BaseChannel, GetPcmCallBack {
   void runDecodeTask();
   //渲染线程
   void runRenderTask();
+  void pause();
+  void resume();
  private:
   pthread_t decodeThreadId;
   SafeQueue<AVFrame *> audioQueue;

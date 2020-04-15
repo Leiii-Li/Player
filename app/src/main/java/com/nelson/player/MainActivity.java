@@ -68,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
                 public void accept(Long aLong) throws Exception {
                     int totalDuration = mPlayerHelper.getTotalDuration();
                     int currentDuration = mPlayerHelper.getCurrentDuration();
-                    Log.i(TAG, "currentTime: " + currentDuration);
                     mViewDataBinding.seekBar.setMax(totalDuration);
                     mViewDataBinding.seekBar.setProgress(currentDuration);
                     mViewDataBinding.setCurrentTime(CommonUtil.getTime(currentDuration));
@@ -80,9 +79,11 @@ public class MainActivity extends AppCompatActivity {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.play_state_iv:
-                if(mViewDataBinding.getIsPlaying()){
+                if (mViewDataBinding.getIsPlaying()) {
                     mPlayerHelper.pause();
+                    mViewDataBinding.setIsPlaying(false);
                 } else {
+                    mViewDataBinding.setIsPlaying(true);
                     mPlayerHelper.resume();
                 }
                 break;
