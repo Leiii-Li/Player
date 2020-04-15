@@ -124,6 +124,7 @@ void playerCallBack(SLAndroidSimpleBufferQueueItf queue, void *context) {
     PcmData *pcmData = openSlElHelper->callBack->getPcmData();
     if (pcmData && pcmData->dataSize > 0) {
         (*queue)->Enqueue(queue, pcmData->data, pcmData->dataSize);
+        delete pcmData;
     } else if (pcmData && pcmData->dataSize == -1) {
         openSlElHelper->pause();
     }

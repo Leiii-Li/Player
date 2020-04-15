@@ -1,10 +1,16 @@
 package com.nelson.player.player;
 
+import static android.media.AudioManager.FLAG_SHOW_UI;
+
+import android.content.Context;
+import android.media.AudioManager;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
-import com.nelson.player.MainActivity;
+import android.view.View;
+import android.view.View.OnTouchListener;
 
 public class PlayerHelper implements Callback {
 
@@ -12,10 +18,16 @@ public class PlayerHelper implements Callback {
     private String mDataSource;
     private SurfaceView mSurfaceView;
     private PlayerCallBack mCallBack;
+    private Context mContext;
+    private final AudioManager mAudioManager;
+    private float mVolumeStartY;
 
     public PlayerHelper(SurfaceView surfaceView) {
         mSurfaceView = surfaceView;
+        mContext = mSurfaceView.getContext();
         mSurfaceView.getHolder().addCallback(this);
+        mSurfaceView.setOnTouchListener(mSurfaceViewTouchListener);
+        mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
     }
 
     public void setDataSource(String dataSource) {
@@ -109,5 +121,35 @@ public class PlayerHelper implements Callback {
 
     public void resume() {
         PlayerNative.resume();
+    }
+
+
+    private OnTouchListener mSurfaceViewTouchListener = new OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    mVolumeStartY = event.getY();
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    handVolumeSet(event.getY());
+                    break;
+            }
+            return true;
+        }
+    };
+
+    private void handVolumeSet(float y) {
+        float distance = mVolumeStartY - y;
+
+        distance /= 2f;
+
+        mVolumeStartY = y;
+
+        int streamVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+
+        streamVolume += distance;
+
+        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, streamVolume, FLAG_SHOW_UI);
     }
 }
