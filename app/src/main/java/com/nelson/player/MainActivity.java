@@ -3,12 +3,14 @@ package com.nelson.player;
 import android.annotation.SuppressLint;
 import android.os.Environment;
 import android.util.Log;
+import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import androidx.databinding.DataBindingUtil;
 import com.nelson.player.databinding.ActivityMainBinding;
 import com.nelson.player.player.PlayerCallBackAdapter;
 import com.nelson.player.player.PlayerHelper;
+import com.nelson.player.utils.CommonUtil;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
@@ -36,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
         File root = Environment.getExternalStorageDirectory();
         File videoFile = new File(root, "xinsh.mp4");
         mPlayerHelper.setDataSource(videoFile.getAbsolutePath());
+//        mPlayerHelper.setDataSource("http://ivi.bupt.edu.cn/hls/cctv1hd.m3u8");
     }
 
     private void init() {
@@ -50,6 +53,11 @@ public class MainActivity extends AppCompatActivity {
             super.onPrepare();
             refreshProgressBar();
         }
+
+        @Override
+        public void onResume() {
+            mViewDataBinding.setIsPlaying(true);
+        }
     }
 
     @SuppressLint("CheckResult")
@@ -63,31 +71,21 @@ public class MainActivity extends AppCompatActivity {
                     Log.i(TAG, "currentTime: " + currentDuration);
                     mViewDataBinding.seekBar.setMax(totalDuration);
                     mViewDataBinding.seekBar.setProgress(currentDuration);
-                    mViewDataBinding.setCurrentTime(getTime(currentDuration));
-                    mViewDataBinding.setTotalTime(getTime(totalDuration));
+                    mViewDataBinding.setCurrentTime(CommonUtil.getTime(currentDuration));
+                    mViewDataBinding.setTotalTime(CommonUtil.getTime(totalDuration));
                 }
             });
     }
 
-    public static String getTime(long second) {
-        long hours = second / 3600;//转换小时数
-        second = second % 3600;//剩余秒数
-        long minutes = second / 60;//转换分钟
-        second = second % 60;//剩余秒数
-        if (hours > 0) {
-            return unitFormat(hours) + ":" + unitFormat(minutes) + ":" + unitFormat(second);
-        } else {
-            return unitFormat(minutes) + ":" + unitFormat(second);
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.play_state_iv:
+                if(mViewDataBinding.getIsPlaying()){
+                    mPlayerHelper.pause();
+                } else {
+                    mPlayerHelper.resume();
+                }
+                break;
         }
-    }
-
-    private static String unitFormat(long i) {
-        String retStr;
-        if (i >= 0 && i < 10) {
-            retStr = "0" + i;
-        } else {
-            retStr = "" + i;
-        }
-        return retStr;
     }
 }

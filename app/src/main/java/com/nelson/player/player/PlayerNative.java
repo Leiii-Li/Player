@@ -23,7 +23,7 @@ class PlayerNative {
 
     public static native void setDataSource(String dataSource);
 
-    public static native void start();
+    static native void start();
 
     public static native void prepare();
 
@@ -32,4 +32,8 @@ class PlayerNative {
     public static native int getTotalDuration();
 
     public static native int getCurrentDuration();
+
+    public static native void pause();
+
+    public static native void resume();
 }

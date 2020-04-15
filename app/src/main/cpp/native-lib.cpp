@@ -165,3 +165,15 @@ Java_com_nelson_player_player_PlayerNative_getCurrentDuration(JNIEnv *env, jclas
     int currentDuration = player->getCurrentDuration();
     return currentDuration;
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nelson_player_player_PlayerNative_pause(JNIEnv *env, jclass clazz) {
+    player->pause();
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nelson_player_player_PlayerNative_resume(JNIEnv *env, jclass clazz) {
+    // TODO: implement resume()
+}

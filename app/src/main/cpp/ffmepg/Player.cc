@@ -68,6 +68,7 @@ void Player::start() {
     if (isPlaying) {
         return;
     }
+    callBack->onResume(THREAD_CHILD);
     isPlaying = true;
     pthread_t playThreadId;
     pthread_create(&playThreadId, 0, reader_thread, this);
@@ -88,7 +89,6 @@ void Player::_start() {
     videoChannel->start();
     audioChannel->start();
     while (isPlaying) {
-        m_threadSleep(10);
         // 在堆内存中申请一个内存空间
         AVPacket *avPacket = av_packet_alloc();
         int ret = av_read_frame(avFormatContext, avPacket);
@@ -191,9 +191,16 @@ void Player::_prepare() {
     }
     callBack->onPrepare(THREAD_CHILD);
 }
+
 int Player::getTotalDuration() {
     return session->totalDuration;
 }
+
 int Player::getCurrentDuration() {
     return session->currentDuration;
+}
+
+void Player::pause() {
+    isPlaying = false;
+
 }

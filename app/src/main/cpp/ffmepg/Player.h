@@ -27,6 +27,7 @@ class Player {
 
   int getTotalDuration();
   int getCurrentDuration();
+  void pause();
  private:
   char *dataSource;
   AVFormatContext *avFormatContext;

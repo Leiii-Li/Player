@@ -15,7 +15,10 @@ class PlayerCallBack {
   void onSuccess(int threadId);
   void onPrepare(int threadId);
   void onProgress(int threadId, const char *msg);
+  void onResume(int threadId);
+  void onPause(int threadId);
  private:
+  void callJavaVoidMethod(int threadId, jmethodID methodId);
   JavaVM *javaVm;
   JNIEnv *jniEnv;
   jobject instance;
@@ -23,6 +26,8 @@ class PlayerCallBack {
   jmethodID onSuccessMethodId;
   jmethodID onPrepareMethodId;
   jmethodID onProgressMethodId;
+  jmethodID onResumeMethodId;
+  jmethodID onPauseMethodId;
 };
 
 

@@ -60,6 +60,20 @@ public class PlayerHelper implements Callback {
                 mCallBack.onPrepare();
             }
         }
+
+        @Override
+        public void onPause() {
+            if (mCallBack != null) {
+                mCallBack.onPause();
+            }
+        }
+
+        @Override
+        public void onResume() {
+            if (mCallBack != null) {
+                mCallBack.onResume();
+            }
+        }
     };
 
     @Override
@@ -87,5 +101,13 @@ public class PlayerHelper implements Callback {
 
     public int getCurrentDuration() {
         return PlayerNative.getCurrentDuration();
+    }
+
+    public void pause() {
+        PlayerNative.pause();
+    }
+
+    public void resume() {
+        PlayerNative.resume();
     }
 }

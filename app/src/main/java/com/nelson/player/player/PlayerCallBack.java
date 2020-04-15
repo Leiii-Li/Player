@@ -9,4 +9,8 @@ public interface PlayerCallBack {
     void onSuccess();
 
     void onPrepare();
+
+    void onPause();
+
+    void onResume();
 }

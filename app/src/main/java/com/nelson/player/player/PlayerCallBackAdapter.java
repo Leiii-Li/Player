@@ -21,4 +21,14 @@ public class PlayerCallBackAdapter implements PlayerCallBack {
     public void onPrepare() {
 
     }
+
+    @Override
+    public void onPause() {
+
+    }
+
+    @Override
+    public void onResume() {
+
+    }
 }
