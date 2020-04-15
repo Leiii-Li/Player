@@ -13,6 +13,7 @@ extern "C" {
 #include "AudioChannel.h"
 #include "VideoChannel.h"
 #include "../constant/Session.h"
+#include "pthread.h"
 
 class Player {
  public:
@@ -29,6 +30,7 @@ class Player {
   int getCurrentDuration();
   void pause();
   void resume();
+  void seek(long i);
  private:
   char *dataSource;
   AVFormatContext *avFormatContext;
@@ -38,6 +40,7 @@ class Player {
   bool isPlaying = false;
   RenderFrameCallBack renderFrameCallBack;
   Session *session;
+  pthread_mutex_t seek_mutex;
 };
 
 

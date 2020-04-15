@@ -73,7 +73,7 @@ VideoChannel::VideoChannel(int streamId,
                                 0,
                                 0,
                                 0);
-//设置回调
+    //设置回调
     renderFrameCallBack = callBack;
 }
 
@@ -96,6 +96,7 @@ void VideoChannel::start() {
 void VideoChannel::stop() {
     channelIsWorking = false;
     packets.setWork(false);
+    frameQueue.setWork(false);
     packets.clear();
     frameQueue.clear();
 }
@@ -184,12 +185,16 @@ void VideoChannel::runRenderTask() {
             //间隔 音视频相差的间隔
             double diff = clock - session->audio_clock;
             if (diff > 0) {
+                long delayTimes = (delays + diff) * 1000;
                 //大于0 表示视频比较快
-                m_threadSleep((delays + diff) * 1000);
+                m_threadSleep(delayTimes);
+                int delay = delayTimes;
+                LOGD("视频比较快 ：%d ", delay);
             } else if (diff < 0) {
                 //小于0 表示音频比较快
                 // 视频包积压的太多了 （丢包）
                 if (fabs(diff) >= 0.05) {
+                    LOGD("音频快");
                     ReleaseUtils::releaseAvFrame(&frame);
                     //丢包
                     frameQueue.sync();

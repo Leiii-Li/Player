@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import androidx.databinding.DataBindingUtil;
@@ -32,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
         init();
 
         setDataSource();
+
+        mViewDataBinding.seekBar.setOnSeekBarChangeListener(mSeekBarChangeListener);
     }
 
     private void setDataSource() {
@@ -89,4 +93,23 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
     }
+
+    private OnSeekBarChangeListener mSeekBarChangeListener = new OnSeekBarChangeListener() {
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            int progress = seekBar.getProgress();
+            Log.i(TAG, "onProgressChanged: " + progress);
+            mPlayerHelper.seek(progress);
+        }
+    };
 }

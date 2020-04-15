@@ -29,6 +29,7 @@ class AudioChannel: public BaseChannel, GetPcmCallBack {
   void runRenderTask();
   void pause();
   void resume();
+  AVRational getTimeBase();
  private:
   pthread_t decodeThreadId;
   SafeQueue<AVFrame *> audioQueue;

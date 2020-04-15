@@ -152,4 +152,8 @@ public class PlayerHelper implements Callback {
 
         mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, streamVolume, FLAG_SHOW_UI);
     }
+
+    public void seek(int progress) {
+        PlayerNative.seek(progress);
+    }
 }

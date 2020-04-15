@@ -41,6 +41,8 @@ AudioChannel::AudioChannel(int streamId,
     // 44100*(双声道)*(16位)
     data = static_cast<uint8_t *>(malloc(out_sample_rate * out_channels * out_sample_size));
     memset(data, 0, out_sample_rate * out_channels * out_sample_size);
+
+    audioQueue.setReleaseCallBack(ReleaseUtils::releaseAvFrame);
 }
 
 AudioChannel::~AudioChannel() {
@@ -117,6 +119,7 @@ void AudioChannel::stop() {
     packets.clear();
     audioQueue.setWork(false);
     audioQueue.clear();
+    openSlElHelper->pause();
 }
 
 void AudioChannel::runDecodeTask() {
@@ -168,4 +171,8 @@ void AudioChannel::pause() {
 void AudioChannel::resume() {
     isPause = false;
     openSlElHelper->resume();
+}
+
+AVRational AudioChannel::getTimeBase() {
+    return time_base;
 }

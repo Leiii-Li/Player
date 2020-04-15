@@ -38,6 +38,9 @@ Player::Player(PlayerCallBack *callBack) {
     avcodec_register_all();
     av_register_all();
     avformat_network_init();
+
+    pthread_mutex_init(&seek_mutex, NULL);
+
     this->session = new Session();
     this->callBack = callBack;
     this->avFormatContext = avformat_alloc_context();
@@ -46,7 +49,7 @@ void Player::setRenderFrameCallBack(RenderFrameCallBack renderFrameCallBack) {
     this->renderFrameCallBack = renderFrameCallBack;
 }
 Player::~Player() {
-
+    pthread_mutex_destroy(&seek_mutex);
 }
 // 设置数据源
 void Player::setDataSource(const char *dataSource) {
@@ -89,22 +92,28 @@ void Player::_start() {
     videoChannel->start();
     audioChannel->start();
     while (isPlaying) {
+        if (videoChannel->packets.size() > 200) {
+            m_threadSleep(1000);
+            continue;
+        }
+        if (audioChannel->packets.size() > 200) {
+            m_threadSleep(1000);
+            continue;
+        }
+
+        pthread_mutex_lock(&seek_mutex);
         // 在堆内存中申请一个内存空间
         AVPacket *avPacket = av_packet_alloc();
         int ret = av_read_frame(avFormatContext, avPacket);
+        pthread_mutex_unlock(&seek_mutex);
+
         if (ret == 0) {
             //读取成功
             if (videoChannel && avPacket->stream_index == videoChannel->streamId) {
                 // 视频包
-                while (videoChannel->packets.size() > 200) {
-                    m_threadSleep(1000);
-                }
                 videoChannel->packets.push(avPacket);
             } else if (audioChannel && avPacket->stream_index == audioChannel->streamId) {
                 // 音频包
-                while (audioChannel->packets.size() > 200) {
-                    m_threadSleep(1000);
-                }
                 audioChannel->packets.push(avPacket);
             }
         } else if (ret == AVERROR_EOF) {
@@ -207,4 +216,28 @@ void Player::pause() {
 void Player::resume() {
     videoChannel->resume();
     audioChannel->resume();
+}
+
+void Player::seek(long time) {
+    if (time < 0 || time >= session->totalDuration) {
+        return;
+    }
+    if (!avFormatContext) {
+        return;
+    }
+    if (!audioChannel || !videoChannel) {
+        return;
+    }
+    pthread_mutex_lock(&seek_mutex);
+    int64_t seek = time * 1000000;
+    av_seek_frame(avFormatContext, -1, seek, AVSEEK_FLAG_BACKWARD);
+
+    audioChannel->stop();
+    audioChannel->start();
+    audioChannel->resume();
+
+    videoChannel->stop();
+    videoChannel->start();
+
+    pthread_mutex_unlock(&seek_mutex);
 }

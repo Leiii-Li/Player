@@ -177,3 +177,9 @@ JNIEXPORT void JNICALL
 Java_com_nelson_player_player_PlayerNative_resume(JNIEnv *env, jclass clazz) {
     player->resume();
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nelson_player_player_PlayerNative_seek(JNIEnv *env, jclass clazz, jlong time) {
+    player->seek(time);
+}
