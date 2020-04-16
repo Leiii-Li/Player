@@ -4,6 +4,8 @@
 
   <data>
 
+    <import type="android.view.View" />
+
     <variable
       name="currentTime"
       type="String" />
@@ -14,6 +16,10 @@
 
     <variable
       name="isPlaying"
+      type="Boolean" />
+
+    <variable
+      name="isRecord"
       type="Boolean" />
   </data>
 
@@ -79,11 +85,36 @@
       android:orientation="vertical">
 
       <Button
-        android:onClick="onClick"
         android:id="@+id/capture_img_btn"
         android:layout_width="100dp"
         android:layout_height="40dp"
+        android:onClick="onClick"
         android:text="截图" />
+
+      <Button
+        android:id="@+id/record_btn"
+        android:layout_width="100dp"
+        android:layout_height="40dp"
+        android:onClick="onClick"
+        android:text="录制" />
+    </LinearLayout>
+
+    <LinearLayout
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_margin="40dp"
+      android:visibility="@{isRecord?View.VISIBLE:View.INVISIBLE}">
+
+      <ImageView
+        android:id="@+id/record_iv"
+        android:layout_width="50dp"
+        android:layout_height="50dp" />
+
+      <TextView
+        android:id="@+id/record_time_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp" />
     </LinearLayout>
   </FrameLayout>
 </layout>

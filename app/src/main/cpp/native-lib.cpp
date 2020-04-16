@@ -186,3 +186,18 @@ JNIEXPORT void JNICALL
 Java_com_nelson_player_player_PlayerNative_captureImage(JNIEnv *env, jclass clazz) {
     isNeedCapture = true;
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nelson_player_player_PlayerNative_startRecord(JNIEnv *env,
+                                                       jclass clazz,
+                                                       jstring video_path) {
+    const char *dataSource = env->GetStringUTFChars(video_path, 0);
+    player->startRecord(dataSource);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nelson_player_player_PlayerNative_stopRecord(JNIEnv *env, jclass clazz) {
+    player->stopRecord();
+}

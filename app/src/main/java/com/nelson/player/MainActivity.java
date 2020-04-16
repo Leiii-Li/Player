@@ -18,6 +18,7 @@ import com.nelson.player.player.PlayerHelper;
 import com.nelson.player.utils.CommonUtil;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -28,6 +29,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private PlayerHelper mPlayerHelper;
     private ActivityMainBinding mViewDataBinding;
+    private boolean isRecording = false;
+    private int mRecordTime = 0;
+    private Disposable mRecordSubscribe;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,6 +114,44 @@ public class MainActivity extends AppCompatActivity {
             case R.id.capture_img_btn:
                 mPlayerHelper.captureImage();
                 break;
+            case R.id.record_btn:
+                if (isRecording) {
+                    stopRecord();
+                } else {
+                    startRecord();
+                }
+                break;
         }
+    }
+
+    private void startRecord() {
+        File rootFile = Environment.getExternalStorageDirectory();
+        File videoFile = new File(rootFile, "record.mp4");
+        if (videoFile.exists()) {
+            videoFile.delete();
+        }
+        mRecordTime = 0;
+        isRecording = true;
+        mViewDataBinding.setIsRecord(isRecording);
+        mPlayerHelper.startRecord(videoFile.getAbsolutePath());
+        if (mRecordSubscribe != null && !mRecordSubscribe.isDisposed()) {
+            mRecordSubscribe.dispose();
+        }
+        mRecordSubscribe = Observable.interval(1, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread())
+            .subscribe(new Consumer<Long>() {
+                @Override
+                public void accept(Long aLong) throws Exception {
+                    mRecordTime++;
+                    mViewDataBinding.recordTimeTv.setText(CommonUtil.getTime(mRecordTime));
+                    mViewDataBinding.recordIv.setBackgroundResource(
+                        mRecordTime % 2 == 0 ? R.drawable.record_high : R.drawable.record_normal);
+                }
+            });
+    }
+
+    private void stopRecord() {
+        isRecording = false;
+        mPlayerHelper.stopRecord();
+        mViewDataBinding.setIsRecord(isRecording);
     }
 }

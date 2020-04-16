@@ -38,4 +38,8 @@ class PlayerNative {
     public static native void resume();
 
     public static native void captureImage();
+
+    public static native void startRecord(String videoPath);
+
+    public static native void stopRecord() ;
 }

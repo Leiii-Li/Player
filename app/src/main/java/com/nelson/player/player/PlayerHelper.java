@@ -163,4 +163,12 @@ public class PlayerHelper implements Callback {
     public void captureImage() {
         PlayerNative.captureImage();
     }
+
+    public void startRecord(String videoPath) {
+        PlayerNative.startRecord(videoPath);
+    }
+
+    public void stopRecord() {
+        PlayerNative.stopRecord();
+    }
 }

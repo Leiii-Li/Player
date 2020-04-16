@@ -38,16 +38,28 @@ Player::Player(PlayerCallBack *callBack) {
     avcodec_register_all();
     av_register_all();
     avformat_network_init();
+
+    pthread_mutex_init(&recordMutex, 0);
+
     this->session = new Session();
     this->callBack = callBack;
     this->avFormatContext = avformat_alloc_context();
 }
+
 void Player::setRenderFrameCallBack(RenderFrameCallBack renderFrameCallBack) {
     this->renderFrameCallBack = renderFrameCallBack;
 }
-Player::~Player() {
 
+Player::~Player() {
+    pthread_mutex_destroy(&recordMutex);
+    if (avFormatContext) {
+        avformat_free_context(avFormatContext);
+    }
+    if (recordAVFormatContext) {
+        avformat_free_context(recordAVFormatContext);
+    }
 }
+
 // 设置数据源
 void Player::setDataSource(const char *dataSource) {
     //防止dataSource在其他地方被释放
@@ -93,6 +105,12 @@ void Player::_start() {
         AVPacket *avPacket = av_packet_alloc();
         int ret = av_read_frame(avFormatContext, avPacket);
         if (ret == 0) {
+            if (isRecording) {
+                AVPacket *tmp_pkt;
+                tmp_pkt = av_packet_alloc();
+                av_packet_ref(tmp_pkt, avPacket);
+                recordQueue.push(tmp_pkt);
+            }
             //读取成功
             if (videoChannel && avPacket->stream_index == videoChannel->streamId) {
                 // 视频包
@@ -207,4 +225,98 @@ void Player::pause() {
 void Player::resume() {
     videoChannel->resume();
     audioChannel->resume();
+}
+
+void *record_task(void *args) {
+    Player *player = static_cast<Player *>(args);
+    player->record();
+}
+
+int Player::startRecord(const char *video_path) {
+    if (!avFormatContext) {
+        return 0;
+    }
+    pthread_mutex_lock(&recordMutex);
+
+    this->videoPath = new char[strlen(video_path) + 1];
+    strcpy(this->videoPath, video_path);
+
+    initAvFormatContext();
+
+    isRecording = true;
+    pthread_create(&recordThread, NULL, record_task, this);
+    recordQueue.setWork(true);
+    pthread_mutex_unlock(&recordMutex);
+    return 1;
+}
+
+void Player::stopRecord() {
+    pthread_mutex_lock(&recordMutex);
+
+    if (recordAVFormatContext) {
+        av_write_trailer(recordAVFormatContext);
+    }
+    isRecording = false;
+    recordQueue.setWork(false);
+    recordQueue.clear();
+    delete videoPath;
+
+    videoPath = 0;
+
+    avformat_free_context(recordAVFormatContext);
+
+    pthread_mutex_unlock(&recordMutex);
+}
+
+void Player::initAvFormatContext() {
+    if (recordAVFormatContext) {
+        avformat_free_context(recordAVFormatContext);
+    }
+
+    const char *formatName = avFormatContext->iformat->name;
+
+    int ret = avformat_alloc_output_context2(&recordAVFormatContext,
+                                             NULL,
+                                             NULL,
+                                             videoPath);
+
+    for (int i = 0; i < avFormatContext->nb_streams; i++) {
+
+        AVStream *in_stream = avFormatContext->streams[i];
+        //创建输出流
+        AVStream *out_stream = avformat_new_stream(recordAVFormatContext, in_stream->codec->codec);
+
+        // 拷贝输出流参数
+        avcodec_copy_context(out_stream->codec, in_stream->codec);
+
+        out_stream->codec->codec_tag = 0;
+    }
+
+    // 创建输出文件
+    av_dump_format(recordAVFormatContext, 0, videoPath, 1);
+
+    // open output file
+    if (!(recordAVFormatContext->flags & AVFMT_NOFILE)) {
+        avio_open(&recordAVFormatContext->pb, videoPath, AVIO_FLAG_WRITE);
+    }
+
+    // 写入文件头
+    avformat_write_header(recordAVFormatContext, NULL);
+}
+void Player::record() {
+    AVPacket *packet = 0;
+    while (isRecording) {
+        int ret = recordQueue.pop(packet);
+        if (!isRecording) {
+            break;
+        }
+        if (!ret) {
+            continue;
+        }
+        // 写入文件
+        av_interleaved_write_frame(recordAVFormatContext, packet);
+
+        // 释放
+        ReleaseUtils::releaseAvPacket(&packet);
+    }
 }

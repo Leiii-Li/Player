@@ -13,6 +13,7 @@ extern "C" {
 #include "AudioChannel.h"
 #include "VideoChannel.h"
 #include "../constant/Session.h"
+#include "pthread.h"
 
 class Player {
  public:
@@ -29,15 +30,28 @@ class Player {
   int getCurrentDuration();
   void pause();
   void resume();
+  int startRecord(const char *video_path);
+  void stopRecord();
+  void record();
  private:
   char *dataSource;
-  AVFormatContext *avFormatContext;
-  PlayerCallBack *callBack;
+  AVFormatContext *avFormatContext = 0;
+  PlayerCallBack *callBack = 0;
   AudioChannel *audioChannel = 0;
   VideoChannel *videoChannel = 0;
   bool isPlaying = false;
   RenderFrameCallBack renderFrameCallBack;
   Session *session;
+
+  // 录制相关参数
+  pthread_mutex_t recordMutex;
+  char *videoPath;
+  bool isRecording = false;
+  AVFormatContext *recordAVFormatContext = 0;
+  SafeQueue<AVPacket *> recordQueue;
+  pthread_t recordThread;
+  void writePacket2File(AVPacket *packet);
+  void initAvFormatContext();
 };
 
 
